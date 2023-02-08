@@ -119,7 +119,7 @@ int main(void)
 
     /* USER CODE BEGIN 3 */
 		HAL_GPIO_TogglePin(TEST_GPIO_Port, TEST_Pin);
-		HAL_Delay(500); // wait 500 ms
+		HAL_Delay(100); // wait 100 ms
 	}
   /* USER CODE END 3 */
 }
