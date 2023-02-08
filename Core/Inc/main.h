@@ -61,20 +61,22 @@ void Error_Handler(void);
 /* Private defines -----------------------------------------------------------*/
 #define ENC1_A_Pin GPIO_PIN_0
 #define ENC1_A_GPIO_Port GPIOA
-#define PWM1N_Pin GPIO_PIN_1
-#define PWM1N_GPIO_Port GPIOA
-#define PWM1_Pin GPIO_PIN_2
-#define PWM1_GPIO_Port GPIOA
-#define PWM2_Pin GPIO_PIN_12
-#define PWM2_GPIO_Port GPIOA
+#define PWM1_B_Pin GPIO_PIN_1
+#define PWM1_B_GPIO_Port GPIOA
+#define PWM1_A_Pin GPIO_PIN_2
+#define PWM1_A_GPIO_Port GPIOA
+#define TEST_Pin GPIO_PIN_3
+#define TEST_GPIO_Port GPIOA
+#define PWM2_A_Pin GPIO_PIN_12
+#define PWM2_A_GPIO_Port GPIOA
 #define ENC1_B_Pin GPIO_PIN_3
 #define ENC1_B_GPIO_Port GPIOB
 #define ENC2_A_Pin GPIO_PIN_4
 #define ENC2_A_GPIO_Port GPIOB
 #define ENC2_B_Pin GPIO_PIN_5
 #define ENC2_B_GPIO_Port GPIOB
-#define PWM2N_Pin GPIO_PIN_6
-#define PWM2N_GPIO_Port GPIOB
+#define PWM2_B_Pin GPIO_PIN_6
+#define PWM2_B_GPIO_Port GPIOB
 
 /* USER CODE BEGIN Private defines */
 
