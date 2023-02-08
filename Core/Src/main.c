@@ -114,12 +114,16 @@ int main(void)
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
+	HAL_TIM_PWM_Start(&htim16, TIM_CHANNEL_1);
+	HAL_TIMEx_PWMN_Start(&htim16, TIM_CHANNEL_1);
 	while (1) {
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
+		/* test code */
 		HAL_GPIO_TogglePin(TEST_GPIO_Port, TEST_Pin);
 		HAL_Delay(100); // wait 100 ms
+		__HAL_TIM_SET_COMPARE(&htim16, TIM_CHANNEL_1, 100);
 	}
   /* USER CODE END 3 */
 }
@@ -508,7 +512,7 @@ static void MX_TIM16_Init(void)
   htim16.Instance = TIM16;
   htim16.Init.Prescaler = 0;
   htim16.Init.CounterMode = TIM_COUNTERMODE_UP;
-  htim16.Init.Period = 65535;
+  htim16.Init.Period = 199;
   htim16.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
   htim16.Init.RepetitionCounter = 0;
   htim16.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
