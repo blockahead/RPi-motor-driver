@@ -1,12 +1,21 @@
 #MicroXplorer Configuration settings - do not modify
 ADC1.Channel-1\#ChannelRegularConversion=ADC_CHANNEL_11
-ADC1.IPParameters=Rank-1\#ChannelRegularConversion,Channel-1\#ChannelRegularConversion,SamplingTime-1\#ChannelRegularConversion,OffsetNumber-1\#ChannelRegularConversion,Offset-1\#ChannelRegularConversion,NbrOfConversionFlag,master,SubFamily
+ADC1.Channel-2\#ChannelRegularConversion=ADC_CHANNEL_12
+ADC1.ContinuousConvMode=ENABLE
+ADC1.EOCSelection=ADC_EOC_SINGLE_CONV
+ADC1.EnableInjectedConversion=DISABLE
+ADC1.IPParameters=Rank-1\#ChannelRegularConversion,Channel-1\#ChannelRegularConversion,SamplingTime-1\#ChannelRegularConversion,OffsetNumber-1\#ChannelRegularConversion,Offset-1\#ChannelRegularConversion,NbrOfConversionFlag,ContinuousConvMode,EnableInjectedConversion,EOCSelection,Rank-2\#ChannelRegularConversion,Channel-2\#ChannelRegularConversion,SamplingTime-2\#ChannelRegularConversion,OffsetNumber-2\#ChannelRegularConversion,Offset-2\#ChannelRegularConversion,NbrOfConversion,SequencerNbRanks,master
+ADC1.NbrOfConversion=2
 ADC1.NbrOfConversionFlag=1
 ADC1.Offset-1\#ChannelRegularConversion=0
+ADC1.Offset-2\#ChannelRegularConversion=0
 ADC1.OffsetNumber-1\#ChannelRegularConversion=ADC_OFFSET_NONE
+ADC1.OffsetNumber-2\#ChannelRegularConversion=ADC_OFFSET_NONE
 ADC1.Rank-1\#ChannelRegularConversion=1
+ADC1.Rank-2\#ChannelRegularConversion=2
 ADC1.SamplingTime-1\#ChannelRegularConversion=ADC_SAMPLETIME_1CYCLE_5
-ADC1.SubFamily=STM32F303x8
+ADC1.SamplingTime-2\#ChannelRegularConversion=ADC_SAMPLETIME_1CYCLE_5
+ADC1.SequencerNbRanks=1
 ADC1.master=1
 CAD.formats=
 CAD.pinconfig=
