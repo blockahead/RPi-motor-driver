@@ -31,6 +31,8 @@
 
 /* Private define ------------------------------------------------------------*/
 /* USER CODE BEGIN PD */
+#define NUM_OF_MOTORS (2)
+#define ADC_REG_MAX (0xFFF)
 /* USER CODE END PD */
 
 /* Private macro -------------------------------------------------------------*/
@@ -40,6 +42,7 @@
 
 /* Private variables ---------------------------------------------------------*/
 ADC_HandleTypeDef hadc1;
+DMA_HandleTypeDef hdma_adc1;
 
 I2C_HandleTypeDef hi2c1;
 
@@ -51,12 +54,15 @@ TIM_HandleTypeDef htim15;
 TIM_HandleTypeDef htim16;
 
 /* USER CODE BEGIN PV */
-
+volatile uint16_t adc_reg_value[NUM_OF_MOTORS];
+volatile float adc_voltage[NUM_OF_MOTORS];
+float adc_ref_voltage;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
 void SystemClock_Config(void);
 static void MX_GPIO_Init(void);
+static void MX_DMA_Init(void);
 static void MX_ADC1_Init(void);
 static void MX_I2C1_Init(void);
 static void MX_SPI1_Init(void);
@@ -101,6 +107,7 @@ int main(void)
 
   /* Initialize all configured peripherals */
   MX_GPIO_Init();
+  MX_DMA_Init();
   MX_ADC1_Init();
   MX_I2C1_Init();
   MX_SPI1_Init();
@@ -117,21 +124,30 @@ int main(void)
 
 	/* ADC start */
 	HAL_ADCEx_Calibration_Start(&hadc1, ADC_SINGLE_ENDED);
-	HAL_ADC_Start(&hadc1);
+	HAL_ADC_Start_DMA(&hadc1, (uint32_t*) adc_reg_value, NUM_OF_MOTORS);
+	adc_ref_voltage = 3.3;
   /* USER CODE END 2 */
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
 	while (1) {
-		float adc_value = 0.0;
-
-		if (adc_value < 0.25) {
-			__HAL_TIM_SET_COMPARE(&htim15, TIM_CHANNEL_1, 100);
-		} else if (0.75 < adc_value) {
-			__HAL_TIM_SET_COMPARE(&htim15, TIM_CHANNEL_1, 300);
-		} else {
-			__HAL_TIM_SET_COMPARE(&htim15, TIM_CHANNEL_1, 200);
+		for (uint8_t i = 0; i < NUM_OF_MOTORS; i++) {
+			adc_voltage[i] = adc_ref_voltage
+					* ((float) adc_reg_value[i] / (float) ADC_REG_MAX);
 		}
+
+		if (adc_voltage[0] < adc_ref_voltage * 0.5f) {
+			__HAL_TIM_SET_COMPARE(&htim15, TIM_CHANNEL_1, 0);
+		} else {
+			__HAL_TIM_SET_COMPARE(&htim15, TIM_CHANNEL_1, 399);
+		}
+
+		if (adc_voltage[1] < adc_ref_voltage * 0.5f) {
+			__HAL_TIM_SET_COMPARE(&htim16, TIM_CHANNEL_1, 100);
+		} else {
+			__HAL_TIM_SET_COMPARE(&htim16, TIM_CHANNEL_1, 399);
+		}
+
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
@@ -176,8 +192,7 @@ void SystemClock_Config(void)
   {
     Error_Handler();
   }
-  PeriphClkInit.PeriphClockSelection = RCC_PERIPHCLK_I2C1|RCC_PERIPHCLK_ADC12;
-  PeriphClkInit.Adc12ClockSelection = RCC_ADC12PLLCLK_DIV1;
+  PeriphClkInit.PeriphClockSelection = RCC_PERIPHCLK_I2C1;
   PeriphClkInit.I2c1ClockSelection = RCC_I2C1CLKSOURCE_HSI;
   if (HAL_RCCEx_PeriphCLKConfig(&PeriphClkInit) != HAL_OK)
   {
@@ -207,7 +222,7 @@ static void MX_ADC1_Init(void)
   /** Common config
   */
   hadc1.Instance = ADC1;
-  hadc1.Init.ClockPrescaler = ADC_CLOCK_ASYNC_DIV1;
+  hadc1.Init.ClockPrescaler = ADC_CLOCK_SYNC_PCLK_DIV4;
   hadc1.Init.Resolution = ADC_RESOLUTION_12B;
   hadc1.Init.ScanConvMode = ADC_SCAN_ENABLE;
   hadc1.Init.ContinuousConvMode = ENABLE;
@@ -216,7 +231,7 @@ static void MX_ADC1_Init(void)
   hadc1.Init.ExternalTrigConv = ADC_SOFTWARE_START;
   hadc1.Init.DataAlign = ADC_DATAALIGN_RIGHT;
   hadc1.Init.NbrOfConversion = 2;
-  hadc1.Init.DMAContinuousRequests = DISABLE;
+  hadc1.Init.DMAContinuousRequests = ENABLE;
   hadc1.Init.EOCSelection = ADC_EOC_SINGLE_CONV;
   hadc1.Init.LowPowerAutoWait = DISABLE;
   hadc1.Init.Overrun = ADC_OVR_DATA_OVERWRITTEN;
@@ -238,7 +253,7 @@ static void MX_ADC1_Init(void)
   sConfig.Channel = ADC_CHANNEL_11;
   sConfig.Rank = ADC_REGULAR_RANK_1;
   sConfig.SingleDiff = ADC_SINGLE_ENDED;
-  sConfig.SamplingTime = ADC_SAMPLETIME_1CYCLE_5;
+  sConfig.SamplingTime = ADC_SAMPLETIME_61CYCLES_5;
   sConfig.OffsetNumber = ADC_OFFSET_NONE;
   sConfig.Offset = 0;
   if (HAL_ADC_ConfigChannel(&hadc1, &sConfig) != HAL_OK)
@@ -571,6 +586,22 @@ static void MX_TIM16_Init(void)
 
   /* USER CODE END TIM16_Init 2 */
   HAL_TIM_MspPostInit(&htim16);
+
+}
+
+/**
+  * Enable DMA controller clock
+  */
+static void MX_DMA_Init(void)
+{
+
+  /* DMA controller clock enable */
+  __HAL_RCC_DMA1_CLK_ENABLE();
+
+  /* DMA interrupt init */
+  /* DMA1_Channel1_IRQn interrupt configuration */
+  HAL_NVIC_SetPriority(DMA1_Channel1_IRQn, 0, 0);
+  HAL_NVIC_EnableIRQ(DMA1_Channel1_IRQn);
 
 }
 
