@@ -63,7 +63,6 @@
 | 30 | PB7 | I2C1_SDA | Reserved |
 | 31 | BOOT0 | - | Pulldown (10kOhm) |
 | 32 | VSS | - | GND |
-|||||
 
 ### HIP4080A
 
@@ -90,7 +89,6 @@
 | 18 | BLO |
 | 19 | BHS |
 | 20 | BHO |
-||||
 
 ### MAX4071
 
@@ -112,4 +110,3 @@
 | 6 | OUT | Controller ADC |
 | 7 | VSS | +3.3V |
 | 8 | GSEL | GND (50V/V gain) |
-||||
