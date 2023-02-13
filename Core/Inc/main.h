@@ -61,26 +61,46 @@ void Error_Handler(void);
 /* Private defines -----------------------------------------------------------*/
 #define ENC1_A_Pin GPIO_PIN_0
 #define ENC1_A_GPIO_Port GPIOA
-#define PWM1_B_Pin GPIO_PIN_1
-#define PWM1_B_GPIO_Port GPIOA
-#define PWM1_A_Pin GPIO_PIN_2
-#define PWM1_A_GPIO_Port GPIOA
+#define PWM1_N_Pin GPIO_PIN_1
+#define PWM1_N_GPIO_Port GPIOA
+#define PWM1_P_Pin GPIO_PIN_2
+#define PWM1_P_GPIO_Port GPIOA
 #define TEST_Pin GPIO_PIN_3
 #define TEST_GPIO_Port GPIOA
+#define SPI_NSS_Pin GPIO_PIN_4
+#define SPI_NSS_GPIO_Port GPIOA
+#define SPI_SCK_Pin GPIO_PIN_5
+#define SPI_SCK_GPIO_Port GPIOA
+#define SPI_MISO_Pin GPIO_PIN_6
+#define SPI_MISO_GPIO_Port GPIOA
+#define SPI_MOSI_Pin GPIO_PIN_7
+#define SPI_MOSI_GPIO_Port GPIOA
+#define ADC1_Pin GPIO_PIN_0
+#define ADC1_GPIO_Port GPIOB
+#define ADC2_Pin GPIO_PIN_1
+#define ADC2_GPIO_Port GPIOB
 #define PWM1_EN_Pin GPIO_PIN_10
 #define PWM1_EN_GPIO_Port GPIOA
 #define PWM2_EN_Pin GPIO_PIN_11
 #define PWM2_EN_GPIO_Port GPIOA
-#define PWM2_A_Pin GPIO_PIN_12
-#define PWM2_A_GPIO_Port GPIOA
+#define PWM2_P_Pin GPIO_PIN_12
+#define PWM2_P_GPIO_Port GPIOA
+#define SWDIO_Pin GPIO_PIN_13
+#define SWDIO_GPIO_Port GPIOA
+#define SWCLK_Pin GPIO_PIN_14
+#define SWCLK_GPIO_Port GPIOA
+#define I2C_SCL_Pin GPIO_PIN_15
+#define I2C_SCL_GPIO_Port GPIOA
 #define ENC1_B_Pin GPIO_PIN_3
 #define ENC1_B_GPIO_Port GPIOB
 #define ENC2_A_Pin GPIO_PIN_4
 #define ENC2_A_GPIO_Port GPIOB
 #define ENC2_B_Pin GPIO_PIN_5
 #define ENC2_B_GPIO_Port GPIOB
-#define PWM2_B_Pin GPIO_PIN_6
-#define PWM2_B_GPIO_Port GPIOB
+#define PWM2_N_Pin GPIO_PIN_6
+#define PWM2_N_GPIO_Port GPIOB
+#define I2C_SDA_Pin GPIO_PIN_7
+#define I2C_SDA_GPIO_Port GPIOB
 
 /* USER CODE BEGIN Private defines */
 
