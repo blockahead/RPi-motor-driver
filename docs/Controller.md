@@ -26,8 +26,8 @@
 | 17 | VDD | - | +3.3V |
 | 18 | PA8 | - | NC |
 | 19 | PA9 | - | NC |
-| 20 | PA10 | - | NC |
-| 21 | PA11 | - | NC |
+| 20 | PA10 | GPIO_OUT | Motor 1 PWM enable |
+| 21 | PA11 | GPIO_OUT | Motor 2 PWM enable |
 | 22 | PA12 | TIM16_CH1 | Motor 2 PWM + |
 | 23 | PA13 | SWDAT | ST-LINK |
 | 24 | PA14 | SWCLK | ST-LINK |
