@@ -21,7 +21,7 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-
+#include "adc.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -125,29 +125,21 @@ int main(void)
 	/* ADC start */
 	HAL_ADCEx_Calibration_Start(&hadc1, ADC_SINGLE_ENDED);
 	HAL_ADC_Start_DMA(&hadc1, (uint32_t*) adc_reg_value, NUM_OF_MOTORS);
-	adc_ref_voltage = 3.3;
+	adc_set_reference_voltage(3.3);
   /* USER CODE END 2 */
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
 	while (1) {
-		for (uint8_t i = 0; i < NUM_OF_MOTORS; i++) {
-			adc_voltage[i] = adc_ref_voltage
-					* ((float) adc_reg_value[i] / (float) ADC_REG_MAX);
-		}
+		uint16_t compare_out;
 
-		if (adc_voltage[0] < adc_ref_voltage * 0.5f) {
-			__HAL_TIM_SET_COMPARE(&htim15, TIM_CHANNEL_1, 0);
-		} else {
-			__HAL_TIM_SET_COMPARE(&htim15, TIM_CHANNEL_1, 399);
-		}
+		compare_out = (uint16_t) (400 * adc_get_voltage(adc_reg_value[0])
+				/ adc_get_reference_voltage());
+		__HAL_TIM_SET_COMPARE(&htim15, TIM_CHANNEL_1, compare_out);
 
-		if (adc_voltage[1] < adc_ref_voltage * 0.5f) {
-			__HAL_TIM_SET_COMPARE(&htim16, TIM_CHANNEL_1, 100);
-		} else {
-			__HAL_TIM_SET_COMPARE(&htim16, TIM_CHANNEL_1, 399);
-		}
-
+		compare_out = (uint16_t) (400 * adc_get_voltage(adc_reg_value[1])
+				/ adc_get_reference_voltage());
+		__HAL_TIM_SET_COMPARE(&htim16, TIM_CHANNEL_1, compare_out);
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
