@@ -6,8 +6,8 @@
 | Pin number | Name | Description |
 | - | - | - |
 | 1 | nSHDN | Pull-up |
-| 2 | RS- | RSENSE - |
-| 3 | RS+ | RSENSE + |
+| 2 | RS- | Shunt resistor - |
+| 3 | RS+ | Shunt resistor + |
 | 4 | GND | GND |
 ||||
 | 5 | REFOUT | NC |
