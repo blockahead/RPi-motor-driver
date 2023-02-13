@@ -21,6 +21,7 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
+#include "pwm.h"
 #include "adc.h"
 /* USER CODE END Includes */
 
@@ -121,6 +122,7 @@ int main(void)
 	HAL_TIMEx_PWMN_Start(&htim15, TIM_CHANNEL_1);
 	HAL_TIM_PWM_Start(&htim16, TIM_CHANNEL_1);
 	HAL_TIMEx_PWMN_Start(&htim16, TIM_CHANNEL_1);
+	pwm_set_supply_voltage(3.3);
 
 	/* ADC start */
 	HAL_ADCEx_Calibration_Start(&hadc1, ADC_SINGLE_ENDED);
@@ -131,15 +133,14 @@ int main(void)
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
 	while (1) {
-		uint16_t compare_out;
-
-		compare_out = (uint16_t) (400 * adc_get_voltage(adc_reg_value[0])
-				/ adc_get_reference_voltage());
-		__HAL_TIM_SET_COMPARE(&htim15, TIM_CHANNEL_1, compare_out);
-
-		compare_out = (uint16_t) (400 * adc_get_voltage(adc_reg_value[1])
-				/ adc_get_reference_voltage());
-		__HAL_TIM_SET_COMPARE(&htim16, TIM_CHANNEL_1, compare_out);
+		__HAL_TIM_SET_COMPARE(&htim15, TIM_CHANNEL_1,
+				pwm_voltage_to_reg(
+						2 * adc_get_voltage(adc_reg_value[0])
+								- adc_get_reference_voltage()));
+		__HAL_TIM_SET_COMPARE(&htim16, TIM_CHANNEL_1,
+				pwm_voltage_to_reg(
+						2 * adc_get_voltage(adc_reg_value[1])
+								- adc_get_reference_voltage()));
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
