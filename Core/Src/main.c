@@ -33,7 +33,6 @@
 /* Private define ------------------------------------------------------------*/
 /* USER CODE BEGIN PD */
 #define NUM_OF_MOTORS (2)
-#define ADC_REG_MAX (0xFFF)
 /* USER CODE END PD */
 
 /* Private macro -------------------------------------------------------------*/
@@ -56,8 +55,6 @@ TIM_HandleTypeDef htim16;
 
 /* USER CODE BEGIN PV */
 volatile uint16_t adc_reg_value[NUM_OF_MOTORS];
-volatile float adc_voltage[NUM_OF_MOTORS];
-float adc_ref_voltage;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -135,11 +132,11 @@ int main(void)
 	while (1) {
 		__HAL_TIM_SET_COMPARE(&htim15, TIM_CHANNEL_1,
 				pwm_voltage_to_reg(
-						2 * adc_get_voltage(adc_reg_value[0])
+						2 * adc_reg_to_voltage(adc_reg_value[0])
 								- adc_get_reference_voltage()));
 		__HAL_TIM_SET_COMPARE(&htim16, TIM_CHANNEL_1,
 				pwm_voltage_to_reg(
-						2 * adc_get_voltage(adc_reg_value[1])
+						2 * adc_reg_to_voltage(adc_reg_value[1])
 								- adc_get_reference_voltage()));
     /* USER CODE END WHILE */
 

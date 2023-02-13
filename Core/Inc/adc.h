@@ -12,6 +12,6 @@
 
 void adc_set_reference_voltage(float voltage);
 float adc_get_reference_voltage(void);
-float adc_get_voltage(uint16_t reg_value);
+float adc_reg_to_voltage(uint32_t value);
 
 #endif /* INC_ADC_H_ */
