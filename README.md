@@ -24,6 +24,6 @@
 
 ## Design sheets
 
-+ [Controller](Docs/Controller.md)
-+ [Motor driver](Docs/MotorDriver.md)
-+ [Current sense amplifier](Docs/CurrentSenseAmp.md)
++ [Controller](docs/Controller.md)
++ [Motor driver](docs/MotorDriver.md)
++ [Current sense amplifier](docs/CurrentSenseAmp.md)
