@@ -67,6 +67,10 @@ void Error_Handler(void);
 #define PWM1_A_GPIO_Port GPIOA
 #define TEST_Pin GPIO_PIN_3
 #define TEST_GPIO_Port GPIOA
+#define PWM1_EN_Pin GPIO_PIN_10
+#define PWM1_EN_GPIO_Port GPIOA
+#define PWM2_EN_Pin GPIO_PIN_11
+#define PWM2_EN_GPIO_Port GPIOA
 #define PWM2_A_Pin GPIO_PIN_12
 #define PWM2_A_GPIO_Port GPIOA
 #define ENC1_B_Pin GPIO_PIN_3

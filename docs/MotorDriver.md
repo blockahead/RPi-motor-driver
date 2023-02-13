@@ -6,8 +6,8 @@
 | Pin number | Name | Description |
 | - | - | - |
 | 1 | BHB ||
-| 2 | HEN ||
-| 3 | DIS | Pull-up (RDIS) |
+| 2 | HEN | Controller GPIO_OUT |
+| 3 | DIS | GND (through toggle switch), pull-up (RDIS) |
 | 4 | VSS | GND |
 | 5 | OUT | NC |
 | 6 | IN+ | Controller TIMx_CH1 |
@@ -20,7 +20,7 @@
 | 12 | AHS ||
 | 13 | ALO ||
 | 14 | ALS | GND |
-| 15 | VCC | Supply voltage for motor |
+| 15 | VCC | VCC |
 | 16 | VDD | Same as VCC (pin 15) |
 | 17 | BLS | GND |
 | 18 | BLO ||
