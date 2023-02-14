@@ -23,6 +23,7 @@
 /* USER CODE BEGIN Includes */
 #include "pwm.h"
 #include "adc.h"
+#include "spi.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -47,6 +48,8 @@ DMA_HandleTypeDef hdma_adc1;
 I2C_HandleTypeDef hi2c1;
 
 SPI_HandleTypeDef hspi1;
+DMA_HandleTypeDef hdma_spi1_rx;
+DMA_HandleTypeDef hdma_spi1_tx;
 
 TIM_HandleTypeDef htim2;
 TIM_HandleTypeDef htim3;
@@ -55,6 +58,7 @@ TIM_HandleTypeDef htim16;
 
 /* USER CODE BEGIN PV */
 volatile uint16_t adc_reg_value[NUM_OF_MOTORS];
+uint8_t TxData[SPI_DATA_BYTES], RxData[SPI_DATA_BYTES];
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -74,7 +78,19 @@ static void MX_TIM16_Init(void);
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
+void HAL_SPI_TxRxCpltCallback(SPI_HandleTypeDef *hspi) {
+	if (spi_does_wait_request()) {
+		/* TODO: Request handling */
 
+		spi_data_start();
+	} else if (spi_does_wait_data()) {
+		/* TODO: Data handling */
+
+		spi_data_end();
+	}
+	TxData[0] = RxData[0];
+	TxData[1] = RxData[1];
+}
 /* USER CODE END 0 */
 
 /**
@@ -125,6 +141,13 @@ int main(void)
 	HAL_ADCEx_Calibration_Start(&hadc1, ADC_SINGLE_ENDED);
 	HAL_ADC_Start_DMA(&hadc1, (uint32_t*) adc_reg_value, NUM_OF_MOTORS);
 	adc_set_reference_voltage(3.3);
+
+	/* SPI start */
+	for (uint8_t i = 0; i < SPI_DATA_BYTES; i++) {
+		TxData[i] = 0;
+		RxData[i] = 0;
+	}
+	HAL_SPI_TransmitReceive_DMA(&hspi1, TxData, RxData, SPI_DATA_BYTES);
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -592,6 +615,12 @@ static void MX_DMA_Init(void)
   /* DMA1_Channel1_IRQn interrupt configuration */
   HAL_NVIC_SetPriority(DMA1_Channel1_IRQn, 0, 0);
   HAL_NVIC_EnableIRQ(DMA1_Channel1_IRQn);
+  /* DMA1_Channel2_IRQn interrupt configuration */
+  HAL_NVIC_SetPriority(DMA1_Channel2_IRQn, 0, 0);
+  HAL_NVIC_EnableIRQ(DMA1_Channel2_IRQn);
+  /* DMA1_Channel3_IRQn interrupt configuration */
+  HAL_NVIC_SetPriority(DMA1_Channel3_IRQn, 0, 0);
+  HAL_NVIC_EnableIRQ(DMA1_Channel3_IRQn);
 
 }
 
