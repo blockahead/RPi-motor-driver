@@ -6,12 +6,12 @@
 | Pin number | Name | Description |
 | - | - | - |
 | 1 | nSHDN | Pull-up |
-| 2 | RS- | Shunt resistor - |
-| 3 | RS+ | Shunt resistor + |
+| 2 | RS- | Shunt resistor - (10mOhm) |
+| 3 | RS+ | Shunt resistor + (10mOhm) |
 | 4 | GND | GND |
 ||||
 | 5 | REFOUT | NC |
-| 6 | OUT | Controller ADC |
+| 6 | OUT | Controller ADC1_IN1x |
 | 7 | VCC | VCC |
 | 8 | GSEL | GND (50V/V gain) |
 
