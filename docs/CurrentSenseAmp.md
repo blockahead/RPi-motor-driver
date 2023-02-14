@@ -12,7 +12,7 @@
 ||||
 | 5 | REFOUT | NC |
 | 6 | OUT | Controller ADC1_IN1x |
-| 7 | VCC | VCC |
+| 7 | VCC | Controller VDD |
 | 8 | GSEL | GND (50V/V gain) |
 
 ## Design
