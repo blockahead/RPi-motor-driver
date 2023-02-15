@@ -58,7 +58,8 @@ TIM_HandleTypeDef htim16;
 
 /* USER CODE BEGIN PV */
 volatile uint16_t adc_reg_value[NUM_OF_MOTORS];
-uint8_t TxData[SPI_DATA_BYTES], RxData[SPI_DATA_BYTES];
+extern SPI_Req spi_req, spi_reqbuf;
+extern SPI_Data spi_dw, spi_dr;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -79,17 +80,12 @@ static void MX_TIM16_Init(void);
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
 void HAL_SPI_TxRxCpltCallback(SPI_HandleTypeDef *hspi) {
-	if (spi_does_wait_request()) {
-		/* TODO: Request handling */
+	HAL_SPI_DMAStop(&hspi1);
 
-		spi_data_start();
-	} else if (spi_does_wait_data()) {
-		/* TODO: Data handling */
+	spi_reqbuf.u8[0] = spi_req.u8[0];
 
-		spi_data_end();
-	}
-	TxData[0] = RxData[0];
-	TxData[1] = RxData[1];
+	HAL_SPI_TransmitReceive_DMA(&hspi1, spi_reqbuf.u8, spi_req.u8,
+			sizeof(SPI_Req));
 }
 /* USER CODE END 0 */
 
@@ -143,11 +139,9 @@ int main(void)
 	adc_set_reference_voltage(3.3);
 
 	/* SPI start */
-	for (uint8_t i = 0; i < SPI_DATA_BYTES; i++) {
-		TxData[i] = 0;
-		RxData[i] = 0;
-	}
-	HAL_SPI_TransmitReceive_DMA(&hspi1, TxData, RxData, SPI_DATA_BYTES);
+	spi_reqbuf.u8[0] = sizeof(SPI_Req);
+	HAL_SPI_TransmitReceive_DMA(&hspi1, spi_reqbuf.u8, spi_req.u8,
+			sizeof(SPI_Req));
   /* USER CODE END 2 */
 
   /* Infinite loop */
