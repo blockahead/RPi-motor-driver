@@ -51,7 +51,8 @@
 | 1 | 0 | 1 | 1 | Speed feedback gain Ti |
 | 1 | 1 | 0 | 0 | Position feedback gain Kp |
 | 1 | 1 | 0 | 1 | Position feedback gain Ti |
-| 1 | 1 | 1 | 1 | Position feedback gain Td |
+| 1 | 1 | 1 | 0 | Position feedback gain Td |
+| 1 | 1 | 1 | 1 | Reserved |
 
 ### Data write register
 

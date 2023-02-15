@@ -58,8 +58,6 @@ TIM_HandleTypeDef htim16;
 
 /* USER CODE BEGIN PV */
 volatile uint16_t adc_reg_value[NUM_OF_MOTORS];
-extern SPI_Req spi_req, spi_reqbuf;
-extern SPI_Data spi_dw, spi_dr;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -80,10 +78,10 @@ static void MX_TIM16_Init(void);
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
 void HAL_SPI_TxRxCpltCallback(SPI_HandleTypeDef *hspi) {
-	spi_reqbuf.u8[0] = spi_req.u8[0];
+	spi_respond();
 
-	HAL_SPI_TransmitReceive_DMA(&hspi1, spi_reqbuf.u8, spi_req.u8,
-			sizeof(SPI_Req));
+	HAL_SPI_TransmitReceive_DMA(&hspi1, spi_tx_addr(), spi_rx_addr(),
+			spi_data_length());
 }
 /* USER CODE END 0 */
 
@@ -137,9 +135,8 @@ int main(void)
 	adc_set_reference_voltage(3.3);
 
 	/* SPI start */
-	spi_reqbuf.u8[0] = sizeof(SPI_Req);
-	HAL_SPI_TransmitReceive_DMA(&hspi1, spi_reqbuf.u8, spi_req.u8,
-			sizeof(SPI_Req));
+	HAL_SPI_TransmitReceive_DMA(&hspi1, spi_tx_addr(), spi_rx_addr(),
+			spi_data_length());
   /* USER CODE END 2 */
 
   /* Infinite loop */
