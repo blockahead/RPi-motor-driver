@@ -80,8 +80,6 @@ static void MX_TIM16_Init(void);
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
 void HAL_SPI_TxRxCpltCallback(SPI_HandleTypeDef *hspi) {
-	HAL_SPI_DMAStop(&hspi1);
-
 	spi_reqbuf.u8[0] = spi_req.u8[0];
 
 	HAL_SPI_TransmitReceive_DMA(&hspi1, spi_reqbuf.u8, spi_req.u8,
