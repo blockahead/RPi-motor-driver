@@ -10,9 +10,9 @@
 
 #include <stdint.h>
 
-uint8_t* spi_tx_addr(void);
-uint8_t* spi_rx_addr(void);
-uint16_t spi_data_length(void);
+extern uint8_t *spi_tx_addr, *spi_rx_addr;
+extern uint16_t spi_data_length;
+
 void spi_respond(void);
 
 #endif /* INC_SPI_H_ */

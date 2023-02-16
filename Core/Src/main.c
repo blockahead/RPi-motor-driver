@@ -48,8 +48,6 @@ DMA_HandleTypeDef hdma_adc1;
 I2C_HandleTypeDef hi2c1;
 
 SPI_HandleTypeDef hspi1;
-DMA_HandleTypeDef hdma_spi1_rx;
-DMA_HandleTypeDef hdma_spi1_tx;
 
 TIM_HandleTypeDef htim2;
 TIM_HandleTypeDef htim3;
@@ -80,8 +78,8 @@ static void MX_TIM16_Init(void);
 void HAL_SPI_TxRxCpltCallback(SPI_HandleTypeDef *hspi) {
 	spi_respond();
 
-	HAL_SPI_TransmitReceive_DMA(&hspi1, spi_tx_addr(), spi_rx_addr(),
-			spi_data_length());
+	HAL_SPI_TransmitReceive_IT(&hspi1, spi_tx_addr, spi_rx_addr,
+			spi_data_length);
 }
 /* USER CODE END 0 */
 
@@ -135,8 +133,8 @@ int main(void)
 	adc_set_reference_voltage(3.3);
 
 	/* SPI start */
-	HAL_SPI_TransmitReceive_DMA(&hspi1, spi_tx_addr(), spi_rx_addr(),
-			spi_data_length());
+	HAL_SPI_TransmitReceive_IT(&hspi1, spi_tx_addr, spi_rx_addr,
+			spi_data_length);
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -604,12 +602,6 @@ static void MX_DMA_Init(void)
   /* DMA1_Channel1_IRQn interrupt configuration */
   HAL_NVIC_SetPriority(DMA1_Channel1_IRQn, 0, 0);
   HAL_NVIC_EnableIRQ(DMA1_Channel1_IRQn);
-  /* DMA1_Channel2_IRQn interrupt configuration */
-  HAL_NVIC_SetPriority(DMA1_Channel2_IRQn, 0, 0);
-  HAL_NVIC_EnableIRQ(DMA1_Channel2_IRQn);
-  /* DMA1_Channel3_IRQn interrupt configuration */
-  HAL_NVIC_SetPriority(DMA1_Channel3_IRQn, 0, 0);
-  HAL_NVIC_EnableIRQ(DMA1_Channel3_IRQn);
 
 }
 

@@ -56,36 +56,32 @@ static uint8_t has_request = 0;
 static SPI_RQ rq, buf;
 static SPI_DATA dw, dr;
 
-uint8_t* spi_tx_addr(void) {
-	if (has_request) {
-		return dr.u8;
-	} else {
-		return buf.u8;
-	}
+uint8_t *spi_tx_addr = buf.u8, *spi_rx_addr = rq.u8;
+uint16_t spi_data_length = sizeof(SPI_RQ);
+
+void spi_transition_to_rq_wait() {
+	spi_tx_addr = buf.u8;
+	spi_rx_addr = rq.u8;
+	spi_data_length = sizeof(SPI_RQ);
 }
 
-uint8_t* spi_rx_addr(void) {
-	if (has_request) {
-		return dw.u8;
-	} else {
-		return rq.u8;
-	}
-}
-
-uint16_t spi_data_length(void) {
-	if (has_request) {
-		return sizeof(SPI_DATA);
-	} else {
-		return sizeof(SPI_RQ);
-	}
+void spi_transition_to_data_wait() {
+	spi_tx_addr = dr.u8;
+	spi_rx_addr = dw.u8;
+	spi_data_length = sizeof(SPI_DATA);
 }
 
 void spi_respond(void) {
 	if (has_request) {
+		/* Data waiting state */
+
 		/* TODO: set data into corresponding variables */
+
+		spi_transition_to_rq_wait();
 
 		has_request = FALSE;
 	} else {
+		/* Request waiting state */
 		switch (rq.ADDRESS) {
 		case ADDR_MOTOR_CURRENT:
 			dr.u32 = 0x1000;
@@ -108,7 +104,7 @@ void spi_respond(void) {
 			break;
 
 		case ADDR_CONTROL_TARGET:
-			dr.u32 = 0x1005;
+			dr.u32 = 0x01000005;
 			break;
 
 		case ADDR_MOTOR_SUPPLY_VOLTAGE:
@@ -154,6 +150,8 @@ void spi_respond(void) {
 		default:
 			break;
 		}
+
+		spi_transition_to_data_wait();
 
 		has_request = TRUE;
 	}
