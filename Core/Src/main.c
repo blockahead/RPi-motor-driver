@@ -54,7 +54,7 @@ TIM_HandleTypeDef htim15;
 TIM_HandleTypeDef htim16;
 
 /* USER CODE BEGIN PV */
-volatile uint16_t adc_reg_value[NUM_OF_MOTORS];
+
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -123,7 +123,7 @@ int main(void)
 
 	/* ADC start */
 	HAL_ADCEx_Calibration_Start(&hadc1, ADC_SINGLE_ENDED);
-	HAL_ADC_Start_DMA(&hadc1, (uint32_t*) adc_reg_value, NUM_OF_MOTORS);
+	HAL_ADC_Start_DMA(&hadc1, (uint32_t*) adc_reg_addr, NUM_OF_MOTORS);
 	adc_set_reference_voltage(3.3);
   /* USER CODE END 2 */
 
@@ -132,12 +132,10 @@ int main(void)
 	while (1) {
 		__HAL_TIM_SET_COMPARE(&htim15, TIM_CHANNEL_1,
 				pwm_voltage_to_reg(
-						2 * adc_reg_to_voltage(adc_reg_value[0])
-								- adc_get_reference_voltage()));
+						2 * adc_get_voltage(0) - adc_get_reference_voltage()));
 		__HAL_TIM_SET_COMPARE(&htim16, TIM_CHANNEL_1,
 				pwm_voltage_to_reg(
-						2 * adc_reg_to_voltage(adc_reg_value[1])
-								- adc_get_reference_voltage()));
+						2 * adc_get_voltage(1) - adc_get_reference_voltage()));
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
