@@ -10,8 +10,10 @@
 
 #include <stdint.h>
 
-void pwm_set_supply_voltage(float voltage);
-float pwm_get_supply_voltage(void);
-uint32_t pwm_voltage_to_reg(float voltage);
+extern uint16_t *const pwm_reg_addr;
+
+void pwm_set_supply_voltage(const uint8_t channel, const float voltage);
+float pwm_get_supply_voltage(const uint8_t channel);
+void pwm_set_voltage(const uint8_t channel, const float voltage);
 
 #endif /* INC_PWM_H_ */
