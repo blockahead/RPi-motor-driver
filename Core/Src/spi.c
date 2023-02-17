@@ -7,6 +7,8 @@
 
 #include "spi.h"
 
+#include "state.h"
+
 #pragma pack(1)
 
 typedef union {
@@ -73,7 +75,7 @@ void spi_transition_to_data_wait() {
 
 void spi_respond(void) {
 	if (has_request) {
-		/* Data waiting state */
+		/* Received data packet */
 
 		/* TODO: set data into corresponding variables */
 
@@ -81,70 +83,72 @@ void spi_respond(void) {
 
 		has_request = FALSE;
 	} else {
-		/* Request waiting state */
+		/* Received request packet */
+		uint8_t channel = rq.CHANNEL;
+
 		switch (rq.ADDRESS) {
 		case ADDR_MOTOR_CURRENT:
-			dr.u32 = 0x1000;
+			dr.f32 = state[channel].motor_current;
 			break;
 
 		case ADDR_MOTOR_SPEED:
-			dr.u32 = 0x1001;
+			dr.f32 = state[channel].motor_speed;
 			break;
 
 		case ADDR_MOTOR_POSITION:
-			dr.u32 = 0x1002;
+			dr.f32 = state[channel].motor_position;
 			break;
 
 		case ADDR_RESERVED_1:
-			dr.u32 = 0x1003;
+			dr.u32 = 0;
 			break;
 
 		case ADDR_CONTROL_MODE:
-			dr.u32 = 0x1004;
+			dr.u32 = (uint32_t) state[channel].control_mode;
 			break;
 
 		case ADDR_CONTROL_TARGET:
-			dr.u32 = 0x01000005;
+			dr.f32 = state[channel].control_target;
 			break;
 
 		case ADDR_MOTOR_SUPPLY_VOLTAGE:
-			dr.u32 = 0x1006;
+			dr.f32 = state[channel].motor_supply_voltage;
 			break;
 
 		case ADDR_RESERVED_2:
-			dr.u32 = 0x1007;
+			dr.u32 = 0;
 			break;
 
 		case ADDR_CURRENT_FB_KP:
-			dr.u32 = 0x1008;
+			dr.f32 = state[channel].current_fbgain_Kp;
 			break;
 
 		case ADDR_CURRENT_FB_TI:
-			dr.u32 = 0x1009;
+			dr.f32 = state[channel].current_fbgain_Ti;
 			break;
 
 		case ADDR_SPEED_FB_KP:
-			dr.u32 = 0x100A;
+			dr.f32 = state[channel].speed_fbgain_Kp;
 			break;
 
 		case ADDR_SPEED_FB_TI:
-			dr.u32 = 0x100B;
+			dr.f32 = state[channel].speed_fbgain_Ti;
 			break;
 
 		case ADDR_POSITION_FB_KP:
-			dr.u32 = 0x100C;
+			dr.f32 = state[channel].position_fbgain_Kp;
 			break;
 
 		case ADDR_POSITION_FB_TI:
-			dr.u32 = 0x100D;
+			dr.f32 = state[channel].position_fbgain_Ti;
 			break;
 
 		case ADDR_POSITION_FB_TD:
-			dr.u32 = 0x100E;
+			dr.f32 = state[channel].position_fbgain_Td;
 			break;
 
 		case ADDR_RESERVED_3:
-			dr.u32 = 0x100F;
+			dr.u32 = 0;
 			break;
 
 		default:

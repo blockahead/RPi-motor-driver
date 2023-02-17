@@ -21,6 +21,7 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
+#include "state.h"
 #include "pwm.h"
 #include "adc.h"
 #include "spi.h"
@@ -120,6 +121,35 @@ int main(void)
   MX_TIM15_Init();
   MX_TIM16_Init();
   /* USER CODE BEGIN 2 */
+	/* State initialize */
+	state[0].motor_current = 0.0;
+	state[0].motor_speed = 0.0;
+	state[0].motor_position = 0.0;
+	state[0].control_mode = 3;
+	state[0].control_target = 0.0;
+	state[0].motor_supply_voltage = 0.0;
+	state[0].current_fbgain_Kp = 0.0;
+	state[0].current_fbgain_Ti = 0.0;
+	state[0].speed_fbgain_Kp = 0.0;
+	state[0].speed_fbgain_Ti = 0.0;
+	state[0].position_fbgain_Kp = 0.0;
+	state[0].position_fbgain_Ti = 0.0;
+	state[0].position_fbgain_Td = 0.0;
+
+	state[1].motor_current = 0.0;
+	state[1].motor_speed = 0.0;
+	state[1].motor_position = 0.0;
+	state[1].control_mode = 5;
+	state[1].control_target = 0.0;
+	state[1].motor_supply_voltage = 0.0;
+	state[1].current_fbgain_Kp = 0.0;
+	state[1].current_fbgain_Ti = 0.0;
+	state[1].speed_fbgain_Kp = 0.0;
+	state[1].speed_fbgain_Ti = 0.0;
+	state[1].position_fbgain_Kp = 0.0;
+	state[1].position_fbgain_Ti = 0.0;
+	state[1].position_fbgain_Td = 0.0;
+
 	/* PWM start */
 	pwm_set_supply_voltage(0, 3.3);
 	pwm_set_supply_voltage(1, 3.3);
