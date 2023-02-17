@@ -19,10 +19,14 @@ static float supply_voltage[NUM_OF_CHANNELS];
 
 uint16_t *const pwm_reg_addr = reg;
 
+uint8_t pwm_get_num_of_channels(void) {
+	return NUM_OF_CHANNELS;
+}
+
 void pwm_set_supply_voltage(const uint8_t channel, const float voltage) {
 	if (channel < NUM_OF_CHANNELS) {
 		/* Supply voltage must be positive */
-		if (supply_voltage < 0) {
+		if (voltage < 0) {
 			supply_voltage[channel] = 0.0;
 		} else {
 			supply_voltage[channel] = voltage;
