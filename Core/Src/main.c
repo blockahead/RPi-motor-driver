@@ -123,7 +123,8 @@ int main(void)
 	HAL_TIMEx_PWMN_Start(&htim16, TIM_CHANNEL_1);
 
 	/* ADC start */
-	adc_set_reference_voltage(3.3);
+	adc_set_reference_voltage(0, 3.3);
+	adc_set_reference_voltage(1, 3.3);
 	HAL_ADCEx_Calibration_Start(&hadc1, ADC_SINGLE_ENDED);
 	HAL_ADC_Start_DMA(&hadc1, (uint32_t*) adc_reg_addr, NUM_OF_MOTORS);
 
@@ -133,9 +134,9 @@ int main(void)
   /* USER CODE BEGIN WHILE */
 	while (1) {
 		pwm_set_voltage(0,
-				2 * adc_get_voltage(0) - adc_get_reference_voltage());
+				2 * adc_get_voltage(0) - adc_get_reference_voltage(0));
 		pwm_set_voltage(1,
-				2 * adc_get_voltage(1) - adc_get_reference_voltage());
+				2 * adc_get_voltage(1) - adc_get_reference_voltage(1));
 
 		/* Update PWM register */
 		__HAL_TIM_SET_COMPARE(&htim15, TIM_CHANNEL_1,
