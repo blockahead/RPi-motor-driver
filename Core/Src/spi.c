@@ -7,8 +7,6 @@
 
 #include "spi.h"
 
-#include "state.h"
-
 #pragma pack(1)
 
 typedef union {
@@ -33,9 +31,6 @@ typedef union {
 
 #define FALSE (0)
 #define TRUE (1)
-
-#define STATE_STANDBY (0)
-#define STATE_WAIT_DATA (1)
 
 #define ADDR_MOTOR_CURRENT (0)
 #define ADDR_MOTOR_SPEED (1)
@@ -73,90 +68,131 @@ void spi_transition_to_data_wait() {
 	spi_data_length = sizeof(SPI_DATA);
 }
 
-void spi_respond(void) {
+void spi_respond(STATE state[]) {
 	if (has_request) {
-		/* Received data packet */
+		/* Data packet received */
+		if (rq.REWRITABLE) {
+			uint8_t channel = rq.CHANNEL;
 
-		/* TODO: set data into corresponding variables */
+			switch (rq.ADDRESS) {
+			case ADDR_CONTROL_MODE:
+				state[channel].control_mode = (uint8_t) dw.u32;
+				break;
 
-		spi_transition_to_rq_wait();
+			case ADDR_CONTROL_TARGET:
+				state[channel].control_target = dw.f32;
+				break;
 
-		has_request = FALSE;
-	} else {
-		/* Received request packet */
-		uint8_t channel = rq.CHANNEL;
+			case ADDR_MOTOR_SUPPLY_VOLTAGE:
+				state[channel].motor_supply_voltage = dw.f32;
+				break;
 
-		switch (rq.ADDRESS) {
-		case ADDR_MOTOR_CURRENT:
-			dr.f32 = state[channel].motor_current;
-			break;
+			case ADDR_CURRENT_FB_KP:
+				state[channel].current_fbgain_Kp = dw.f32;
+				break;
 
-		case ADDR_MOTOR_SPEED:
-			dr.f32 = state[channel].motor_speed;
-			break;
+			case ADDR_CURRENT_FB_TI:
+				state[channel].current_fbgain_Ti = dw.f32;
+				break;
 
-		case ADDR_MOTOR_POSITION:
-			dr.f32 = state[channel].motor_position;
-			break;
+			case ADDR_SPEED_FB_KP:
+				state[channel].speed_fbgain_Kp = dw.f32;
+				break;
 
-		case ADDR_RESERVED_1:
-			dr.u32 = 0;
-			break;
+			case ADDR_SPEED_FB_TI:
+				state[channel].speed_fbgain_Ti = dw.f32;
+				break;
 
-		case ADDR_CONTROL_MODE:
-			dr.u32 = (uint32_t) state[channel].control_mode;
-			break;
+			case ADDR_POSITION_FB_KP:
+				state[channel].position_fbgain_Kp = dw.f32;
+				break;
 
-		case ADDR_CONTROL_TARGET:
-			dr.f32 = state[channel].control_target;
-			break;
+			case ADDR_POSITION_FB_TI:
+				state[channel].position_fbgain_Ti = dw.f32;
+				break;
 
-		case ADDR_MOTOR_SUPPLY_VOLTAGE:
-			dr.f32 = state[channel].motor_supply_voltage;
-			break;
+			case ADDR_POSITION_FB_TD:
+				state[channel].position_fbgain_Td = dw.f32;
+				break;
 
-		case ADDR_RESERVED_2:
-			dr.u32 = 0;
-			break;
-
-		case ADDR_CURRENT_FB_KP:
-			dr.f32 = state[channel].current_fbgain_Kp;
-			break;
-
-		case ADDR_CURRENT_FB_TI:
-			dr.f32 = state[channel].current_fbgain_Ti;
-			break;
-
-		case ADDR_SPEED_FB_KP:
-			dr.f32 = state[channel].speed_fbgain_Kp;
-			break;
-
-		case ADDR_SPEED_FB_TI:
-			dr.f32 = state[channel].speed_fbgain_Ti;
-			break;
-
-		case ADDR_POSITION_FB_KP:
-			dr.f32 = state[channel].position_fbgain_Kp;
-			break;
-
-		case ADDR_POSITION_FB_TI:
-			dr.f32 = state[channel].position_fbgain_Ti;
-			break;
-
-		case ADDR_POSITION_FB_TD:
-			dr.f32 = state[channel].position_fbgain_Td;
-			break;
-
-		case ADDR_RESERVED_3:
-			dr.u32 = 0;
-			break;
-
-		default:
-			break;
+			default:
+				/* Do nothing */
+				break;
+			}
+		} else {
+			/* Do nothing */
 		}
 
-		spi_transition_to_data_wait();
+		spi_transition_to_rq_wait();
+		has_request = FALSE;
+	} else {
+		/* Request packet received */
+		if (!rq.READY && rq.START) {
+			uint8_t channel = rq.CHANNEL;
 
-		has_request = TRUE;
+			switch (rq.ADDRESS) {
+			case ADDR_MOTOR_CURRENT:
+				dr.f32 = state[channel].motor_current;
+				break;
+
+			case ADDR_MOTOR_SPEED:
+				dr.f32 = state[channel].motor_speed;
+				break;
+
+			case ADDR_MOTOR_POSITION:
+				dr.f32 = state[channel].motor_position;
+				break;
+
+			case ADDR_CONTROL_MODE:
+				dr.u32 = (uint32_t) state[channel].control_mode;
+				break;
+
+			case ADDR_CONTROL_TARGET:
+				dr.f32 = state[channel].control_target;
+				break;
+
+			case ADDR_MOTOR_SUPPLY_VOLTAGE:
+				dr.f32 = state[channel].motor_supply_voltage;
+				break;
+
+			case ADDR_CURRENT_FB_KP:
+				dr.f32 = state[channel].current_fbgain_Kp;
+				break;
+
+			case ADDR_CURRENT_FB_TI:
+				dr.f32 = state[channel].current_fbgain_Ti;
+				break;
+
+			case ADDR_SPEED_FB_KP:
+				dr.f32 = state[channel].speed_fbgain_Kp;
+				break;
+
+			case ADDR_SPEED_FB_TI:
+				dr.f32 = state[channel].speed_fbgain_Ti;
+				break;
+
+			case ADDR_POSITION_FB_KP:
+				dr.f32 = state[channel].position_fbgain_Kp;
+				break;
+
+			case ADDR_POSITION_FB_TI:
+				dr.f32 = state[channel].position_fbgain_Ti;
+				break;
+
+			case ADDR_POSITION_FB_TD:
+				dr.f32 = state[channel].position_fbgain_Td;
+				break;
+
+			default:
+				/* Send zero if address is invalid */
+				dr.u32 = 0;
+				break;
+			}
+
+			spi_transition_to_data_wait();
+			has_request = TRUE;
+		} else {
+			/* Do nothing */
+		}
 	}
 }

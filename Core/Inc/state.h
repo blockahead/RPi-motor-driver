@@ -26,11 +26,4 @@ typedef struct {
 	float position_fbgain_Td;
 } STATE;
 
-extern STATE state[];
-
-uint8_t state_get_num_of_channels(void);
-void state_update_motor_current(const float current);
-void state_update_motor_speed(const float speed);
-void state_update_motor_position(const float position);
-
 #endif /* INC_STATE_H_ */

@@ -56,7 +56,7 @@ TIM_HandleTypeDef htim15;
 TIM_HandleTypeDef htim16;
 
 /* USER CODE BEGIN PV */
-
+STATE state[2];
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -77,7 +77,7 @@ static void MX_TIM16_Init(void);
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
 void HAL_SPI_TxRxCpltCallback(SPI_HandleTypeDef *hspi) {
-	spi_respond();
+	spi_respond(state);
 
 	HAL_SPI_TransmitReceive_IT(&hspi1, spi_tx_addr, spi_rx_addr,
 			spi_data_length);
