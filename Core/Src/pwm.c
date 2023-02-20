@@ -11,7 +11,7 @@
 #include <float.h>
 
 #define NUM_OF_CHANNELS (2)
-#define REG_MAX (400)
+#define REG_MAX (800)
 #define REG_ZERO (REG_MAX / 2)
 
 static uint16_t reg[NUM_OF_CHANNELS];
