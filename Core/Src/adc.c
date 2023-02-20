@@ -22,8 +22,8 @@ uint8_t adc_get_num_of_channels(void) {
 void adc_set_reference_voltage(const uint8_t channel, const float voltage) {
 	if (channel < NUM_OF_CHANNELS) {
 		/* Reference voltage must be positive */
-		if (voltage < 0) {
-			reference_voltage[channel] = 0.0;
+		if (voltage < 0.0F) {
+			reference_voltage[channel] = 0.0F;
 		} else {
 			reference_voltage[channel] = voltage;
 		}
@@ -36,7 +36,7 @@ float adc_get_reference_voltage(const uint8_t channel) {
 	if (channel < NUM_OF_CHANNELS) {
 		return reference_voltage[channel];
 	} else {
-		return 0.0;
+		return 0.0F;
 	}
 }
 
@@ -45,6 +45,6 @@ float adc_get_voltage(const uint8_t channel) {
 		return reference_voltage[channel]
 				* ((float) reg[channel] / (float) REG_MAX);
 	} else {
-		return 0.0;
+		return 0.0F;
 	}
 }

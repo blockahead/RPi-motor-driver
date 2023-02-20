@@ -115,16 +115,16 @@ int main(void)
   MX_TIM16_Init();
   /* USER CODE BEGIN 2 */
 	/* PWM start */
-	pwm_set_supply_voltage(0, 3.3);
-	pwm_set_supply_voltage(1, 3.3);
+	pwm_set_supply_voltage(0, 3.3F);
+	pwm_set_supply_voltage(1, 3.3F);
 	HAL_TIM_PWM_Start(&htim15, TIM_CHANNEL_1);
 	HAL_TIMEx_PWMN_Start(&htim15, TIM_CHANNEL_1);
 	HAL_TIM_PWM_Start(&htim16, TIM_CHANNEL_1);
 	HAL_TIMEx_PWMN_Start(&htim16, TIM_CHANNEL_1);
 
 	/* ADC start */
-	adc_set_reference_voltage(0, 3.3);
-	adc_set_reference_voltage(1, 3.3);
+	adc_set_reference_voltage(0, 3.3F);
+	adc_set_reference_voltage(1, 3.3F);
 	HAL_ADCEx_Calibration_Start(&hadc1, ADC_SINGLE_ENDED);
 	HAL_ADC_Start_DMA(&hadc1, (uint32_t*) adc_reg_addr, NUM_OF_MOTORS);
 
@@ -134,15 +134,18 @@ int main(void)
   /* USER CODE BEGIN WHILE */
 	while (1) {
 		pwm_set_voltage(0,
-				2 * adc_get_voltage(0) - adc_get_reference_voltage(0));
+				2.0F * adc_get_voltage(0) - adc_get_reference_voltage(0));
 		pwm_set_voltage(1,
-				2 * adc_get_voltage(1) - adc_get_reference_voltage(1));
+				2.0F * adc_get_voltage(1) - adc_get_reference_voltage(1));
 
 		/* Update PWM register */
 		__HAL_TIM_SET_COMPARE(&htim15, TIM_CHANNEL_1,
 				(uint32_t ) pwm_reg_addr[0]);
 		__HAL_TIM_SET_COMPARE(&htim16, TIM_CHANNEL_1,
 				(uint32_t ) pwm_reg_addr[1]);
+
+		/* TEST */
+		HAL_GPIO_TogglePin(TEST_GPIO_Port, TEST_Pin);
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */

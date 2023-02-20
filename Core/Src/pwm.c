@@ -26,8 +26,8 @@ uint8_t pwm_get_num_of_channels(void) {
 void pwm_set_supply_voltage(const uint8_t channel, const float voltage) {
 	if (channel < NUM_OF_CHANNELS) {
 		/* Supply voltage must be positive */
-		if (voltage < 0) {
-			supply_voltage[channel] = 0.0;
+		if (voltage < 0.0F) {
+			supply_voltage[channel] = 0.0F;
 		} else {
 			supply_voltage[channel] = voltage;
 		}
@@ -40,7 +40,7 @@ float pwm_get_supply_voltage(const uint8_t channel) {
 	if (channel < NUM_OF_CHANNELS) {
 		return supply_voltage[channel];
 	} else {
-		return 0.0;
+		return 0.0F;
 	}
 }
 
@@ -59,8 +59,8 @@ void pwm_set_voltage(const uint8_t channel, const float voltage) {
 
 		/* Avoiding zero division (not allowed supply voltage is zero) */
 		if (FLT_EPSILON < fabsf(supply_voltage[channel])) {
-			reg[channel] = REG_ZERO
-					* (1.0 + target_voltage / supply_voltage[channel]);
+			reg[channel] = (uint16_t) ((float) REG_ZERO
+					* (1.0F + target_voltage / supply_voltage[channel]));
 		} else {
 			reg[channel] = REG_ZERO;
 		}
