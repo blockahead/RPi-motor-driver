@@ -8,7 +8,7 @@
 #ifndef INC_PWM_H_
 #define INC_PWM_H_
 
-#include <stdint.h>
+#include "stm32f3xx_hal.h"
 
 typedef enum {
 	PWM1, PWM2, NUM_OF_PWMS
