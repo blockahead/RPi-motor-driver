@@ -82,6 +82,10 @@ void HAL_SPI_TxRxCpltCallback(SPI_HandleTypeDef *hspi) {
 	}
 }
 
+void HAL_SPI_ErrorCallback(SPI_HandleTypeDef *hspi) {
+	spi_start();
+}
+
 static ErrorStatus spi_rq_res(void) {
 	if (!rq.READY && rq.START) {
 		uint8_t channel = rq.CHANNEL;
