@@ -117,11 +117,7 @@ int main(void)
   MX_TIM15_Init();
   MX_TIM16_Init();
   /* USER CODE BEGIN 2 */
-	/* Encoder start */
-	__HAL_TIM_URS_ENABLE(&htim2);
-	__HAL_TIM_ENABLE_IT(&htim2, TIM_IT_UPDATE);
-	HAL_TIM_Encoder_Start(&htim2, TIM_CHANNEL_ALL);
-	HAL_TIM_Encoder_Start(&htim3, TIM_CHANNEL_ALL);
+	encoder_start();
 
 	/* PWM start */
 	pwm_set_supply_voltage(MOTOR_CHANNEL_1, 3.3F);
@@ -154,7 +150,8 @@ int main(void)
 		__HAL_TIM_SET_COMPARE(&htim16, TIM_CHANNEL_1,
 				(uint32_t ) pwm_reg_addr[MOTOR_CHANNEL_2]);
 
-		int32_t count = encoder_get_count(ENC1);
+		int32_t count1 = encoder_get_count(ENC1);
+		int32_t count2 = encoder_get_count(ENC2);
 
 		/* TEST */
 		HAL_GPIO_TogglePin(TEST_GPIO_Port, TEST_Pin);
