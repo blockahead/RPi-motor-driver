@@ -15,7 +15,9 @@ typedef enum {
 } ENCODER_CHANNEL;
 
 void encoder_clear_count(const uint8_t channel);
+void encoder_set_pulse_per_rev(const uint8_t channel, const uint16_t ppr);
 int32_t encoder_get_count(const uint8_t channel);
+float encoder_get_angle_rad(const uint8_t channel);
 void encoder_start(void);
 
 #endif /* INC_ENCODER_H_ */

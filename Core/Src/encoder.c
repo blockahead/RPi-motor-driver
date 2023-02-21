@@ -7,10 +7,14 @@
 
 #include "encoder.h"
 
+#define PI (3.14159265358979323846F)
+#define TWOPI (PI * 2.0F)
+
 extern TIM_HandleTypeDef htim2;
 extern TIM_HandleTypeDef htim3;
 
-static uint16_t ofuf_count[NUM_OF_ENCODERS] = { 0U, 0U };
+static uint16_t ofuf_count[NUM_OF_ENCODERS] = { 0, 0 };
+static uint16_t pulse_per_rev[NUM_OF_ENCODERS] = { 0, 0 };
 
 /* Timer overflow/underflow interruption */
 void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim) {
@@ -62,6 +66,19 @@ void encoder_clear_count(const uint8_t channel) {
 	ofuf_count[channel] = 0;
 }
 
+void encoder_set_pulse_per_rev(const uint8_t channel, const uint16_t ppr) {
+	switch (channel) {
+	case ENCODER1:
+	case ENCODER2:
+		pulse_per_rev[channel] = ppr;
+
+		break;
+
+	default:
+		break;
+	}
+}
+
 int32_t encoder_get_count(const uint8_t channel) {
 	uint16_t lower;
 
@@ -79,6 +96,20 @@ int32_t encoder_get_count(const uint8_t channel) {
 	}
 
 	return (ofuf_count[channel] << 16) | lower;
+}
+
+float encoder_get_angle_rad(const uint8_t channel) {
+	switch (channel) {
+	case ENCODER1:
+	case ENCODER2:
+		return TWOPI * (float) encoder_get_count(channel)
+				/ (float) pulse_per_rev[channel];
+
+		break;
+
+	default:
+		return 0.0F;
+	}
 }
 
 void encoder_start(void) {

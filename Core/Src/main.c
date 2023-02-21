@@ -117,6 +117,8 @@ int main(void)
   MX_TIM15_Init();
   MX_TIM16_Init();
   /* USER CODE BEGIN 2 */
+	encoder_set_pulse_per_rev(ENCODER1, 2000);
+	encoder_set_pulse_per_rev(ENCODER2, 2000);
 	encoder_start();
 
 	pwm_set_supply_voltage(PWM1, 3.3F);
@@ -137,6 +139,10 @@ int main(void)
 
 		int32_t count1 = encoder_get_count(ENCODER1);
 		int32_t count2 = encoder_get_count(ENCODER2);
+		float rad1 = encoder_get_angle_rad(ENCODER1);
+		float rad2 = encoder_get_angle_rad(ENCODER2);
+		float motor_deg1 = rad1 / 36.0F * 180.0F / (3.14159265358979323846F);
+		float motor_deg2 = rad2 / 36.0F * 180.0F / (3.14159265358979323846F);
 
 		/* TEST */
 		HAL_GPIO_TogglePin(TEST_GPIO_Port, TEST_Pin);
