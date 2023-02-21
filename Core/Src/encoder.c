@@ -7,8 +7,6 @@
 
 #include "encoder.h"
 
-#include "stm32f3xx_hal.h"
-
 extern TIM_HandleTypeDef htim2;
 extern TIM_HandleTypeDef htim3;
 
@@ -47,15 +45,6 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim) {
 	}
 }
 
-void encoder_start(void) {
-	__HAL_TIM_URS_ENABLE(&htim2);
-	__HAL_TIM_URS_ENABLE(&htim3);
-	__HAL_TIM_ENABLE_IT(&htim2, TIM_IT_UPDATE);
-	__HAL_TIM_ENABLE_IT(&htim3, TIM_IT_UPDATE);
-	HAL_TIM_Encoder_Start(&htim2, TIM_CHANNEL_ALL);
-	HAL_TIM_Encoder_Start(&htim3, TIM_CHANNEL_ALL);
-}
-
 void encoder_clear_count(const uint8_t channel) {
 	switch (channel) {
 	case ENC1:
@@ -90,4 +79,13 @@ int32_t encoder_get_count(const uint8_t channel) {
 	}
 
 	return (ofuf_count[channel] << 16) | lower;
+}
+
+void encoder_start(void) {
+	__HAL_TIM_URS_ENABLE(&htim2);
+	__HAL_TIM_URS_ENABLE(&htim3);
+	__HAL_TIM_ENABLE_IT(&htim2, TIM_IT_UPDATE);
+	__HAL_TIM_ENABLE_IT(&htim3, TIM_IT_UPDATE);
+	HAL_TIM_Encoder_Start(&htim2, TIM_CHANNEL_ALL);
+	HAL_TIM_Encoder_Start(&htim3, TIM_CHANNEL_ALL);
 }
