@@ -10,11 +10,14 @@
 
 #include <stdint.h>
 
-extern uint16_t *const pwm_reg_addr;
+typedef enum {
+	PWM1, PWM2, NUM_OF_PWMS
+} PWM_CHANNEL;
 
-uint8_t pwm_get_num_of_channels(void);
 void pwm_set_supply_voltage(const uint8_t channel, const float voltage);
 float pwm_get_supply_voltage(const uint8_t channel);
 void pwm_set_voltage(const uint8_t channel, const float voltage);
+void pwm_start(void);
+void pwm_command(void);
 
 #endif /* INC_PWM_H_ */

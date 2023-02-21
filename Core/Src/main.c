@@ -119,13 +119,9 @@ int main(void)
   /* USER CODE BEGIN 2 */
 	encoder_start();
 
-	/* PWM start */
-	pwm_set_supply_voltage(MOTOR_CHANNEL_1, 3.3F);
-	pwm_set_supply_voltage(MOTOR_CHANNEL_2, 3.3F);
-	HAL_TIM_PWM_Start(&htim15, TIM_CHANNEL_1);
-	HAL_TIMEx_PWMN_Start(&htim15, TIM_CHANNEL_1);
-	HAL_TIM_PWM_Start(&htim16, TIM_CHANNEL_1);
-	HAL_TIMEx_PWMN_Start(&htim16, TIM_CHANNEL_1);
+	pwm_set_supply_voltage(PWM1, 3.3F);
+	pwm_set_supply_voltage(PWM2, 3.3F);
+	pwm_start();
 
 	/* ADC start */
 	adc_set_reference_voltage(MOTOR_CHANNEL_1, 3.3F);
@@ -145,10 +141,7 @@ int main(void)
 						- adc_get_reference_voltage(MOTOR_CHANNEL_2));
 
 		/* Update PWM register */
-		__HAL_TIM_SET_COMPARE(&htim15, TIM_CHANNEL_1,
-				(uint32_t ) pwm_reg_addr[MOTOR_CHANNEL_1]);
-		__HAL_TIM_SET_COMPARE(&htim16, TIM_CHANNEL_1,
-				(uint32_t ) pwm_reg_addr[MOTOR_CHANNEL_2]);
+		pwm_command();
 
 		int32_t count1 = encoder_get_count(ENC1);
 		int32_t count2 = encoder_get_count(ENC2);
