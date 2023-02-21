@@ -23,7 +23,7 @@
 /* USER CODE BEGIN Includes */
 #include "encoder.h"
 #include "pwm.h"
-#include "adc.h"
+#include "csa.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -123,28 +123,20 @@ int main(void)
 	pwm_set_supply_voltage(PWM2, 3.3F);
 	pwm_start();
 
-	/* ADC start */
-	adc_set_reference_voltage(MOTOR_CHANNEL_1, 3.3F);
-	adc_set_reference_voltage(MOTOR_CHANNEL_2, 3.3F);
-	HAL_ADCEx_Calibration_Start(&hadc1, ADC_SINGLE_ENDED);
-	HAL_ADC_Start_DMA(&hadc1, (uint32_t*) adc_reg_addr, NUM_OF_MOTORS);
+	csa_start();
   /* USER CODE END 2 */
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
 	while (1) {
-		pwm_set_voltage(MOTOR_CHANNEL_1,
-				2.0F * adc_get_voltage(MOTOR_CHANNEL_1)
-						- adc_get_reference_voltage(MOTOR_CHANNEL_1));
-		pwm_set_voltage(MOTOR_CHANNEL_2,
-				2.0F * adc_get_voltage(MOTOR_CHANNEL_2)
-						- adc_get_reference_voltage(MOTOR_CHANNEL_2));
+		pwm_set_voltage(PWM1, 2.0F * csa_get_voltage(CSA1) - 3.3F);
+		pwm_set_voltage(PWM2, 2.0F * csa_get_voltage(CSA2) - 3.3F);
 
 		/* Update PWM register */
 		pwm_command();
 
-		int32_t count1 = encoder_get_count(ENC1);
-		int32_t count2 = encoder_get_count(ENC2);
+		int32_t count1 = encoder_get_count(ENCODER1);
+		int32_t count2 = encoder_get_count(ENCODER2);
 
 		/* TEST */
 		HAL_GPIO_TogglePin(TEST_GPIO_Port, TEST_Pin);

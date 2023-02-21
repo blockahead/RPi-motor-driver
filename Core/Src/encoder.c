@@ -10,7 +10,7 @@
 extern TIM_HandleTypeDef htim2;
 extern TIM_HandleTypeDef htim3;
 
-static uint16_t ofuf_count[NUM_OF_ENCODERS] = { 0 };
+static uint16_t ofuf_count[NUM_OF_ENCODERS] = { 0U, 0U };
 
 /* Timer overflow/underflow interruption */
 void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim) {
@@ -21,10 +21,10 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim) {
 			/* Check direction */
 			if (__HAL_TIM_IS_TIM_COUNTING_DOWN(htim)) {
 				/* Counter underflow */
-				ofuf_count[ENC1]--;
+				ofuf_count[ENCODER1]--;
 			} else {
 				/* Counter overflow */
-				ofuf_count[ENC1]++;
+				ofuf_count[ENCODER1]++;
 			}
 		}
 	}
@@ -36,10 +36,10 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim) {
 			/* Check direction */
 			if (__HAL_TIM_IS_TIM_COUNTING_DOWN(htim)) {
 				/* Counter underflow */
-				ofuf_count[ENC2]--;
+				ofuf_count[ENCODER2]--;
 			} else {
 				/* Counter overflow */
-				ofuf_count[ENC2]++;
+				ofuf_count[ENCODER2]++;
 			}
 		}
 	}
@@ -47,11 +47,11 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim) {
 
 void encoder_clear_count(const uint8_t channel) {
 	switch (channel) {
-	case ENC1:
+	case ENCODER1:
 		__HAL_TIM_SET_COUNTER(&htim2, 0);
 		break;
 
-	case ENC2:
+	case ENCODER2:
 		__HAL_TIM_SET_COUNTER(&htim3, 0);
 		break;
 
@@ -66,11 +66,11 @@ int32_t encoder_get_count(const uint8_t channel) {
 	uint16_t lower;
 
 	switch (channel) {
-	case ENC1:
+	case ENCODER1:
 		lower = __HAL_TIM_GET_COUNTER(&htim2);
 		break;
 
-	case ENC2:
+	case ENCODER2:
 		lower = __HAL_TIM_GET_COUNTER(&htim3);
 		break;
 
