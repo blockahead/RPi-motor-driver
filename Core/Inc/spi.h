@@ -8,13 +8,9 @@
 #ifndef INC_SPI_H_
 #define INC_SPI_H_
 
-#include <stdint.h>
+#include "stm32f3xx_hal.h"
 
-#include "state.h"
-
-extern uint8_t *spi_tx_addr, *spi_rx_addr;
-extern uint16_t spi_data_length;
-
-void spi_respond(STATE state[]);
+void spi_start(void);
+void spi_update(void);
 
 #endif /* INC_SPI_H_ */

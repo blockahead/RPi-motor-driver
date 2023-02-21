@@ -79,12 +79,7 @@ static void MX_TIM16_Init(void);
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
-void HAL_SPI_TxRxCpltCallback(SPI_HandleTypeDef *hspi) {
-	spi_respond(state);
 
-	HAL_SPI_TransmitReceive_IT(&hspi1, spi_tx_addr, spi_rx_addr,
-			spi_data_length);
-}
 /* USER CODE END 0 */
 
 /**
@@ -163,9 +158,7 @@ int main(void)
 
 	csa_start();
 
-	/* SPI start */
-	HAL_SPI_TransmitReceive_IT(&hspi1, spi_tx_addr, spi_rx_addr,
-			spi_data_length);
+	spi_start();
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -176,6 +169,8 @@ int main(void)
 
 		/* Update PWM register */
 		pwm_command();
+
+		spi_update();
 
 		int32_t count1 = encoder_get_count(ENCODER1);
 		int32_t count2 = encoder_get_count(ENCODER2);
