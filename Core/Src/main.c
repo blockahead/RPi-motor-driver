@@ -21,6 +21,7 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
+#include "encoder.h"
 #include "pwm.h"
 #include "adc.h"
 /* USER CODE END Includes */
@@ -33,6 +34,8 @@
 /* Private define ------------------------------------------------------------*/
 /* USER CODE BEGIN PD */
 #define NUM_OF_MOTORS (2)
+#define MOTOR_CHANNEL_1 (0)
+#define MOTOR_CHANNEL_2 (1)
 /* USER CODE END PD */
 
 /* Private macro -------------------------------------------------------------*/
@@ -114,35 +117,41 @@ int main(void)
   MX_TIM15_Init();
   MX_TIM16_Init();
   /* USER CODE BEGIN 2 */
+	encoder_start();
+
 	/* PWM start */
-	pwm_set_supply_voltage(0, 3.3F);
-	pwm_set_supply_voltage(1, 3.3F);
+	pwm_set_supply_voltage(MOTOR_CHANNEL_1, 3.3F);
+	pwm_set_supply_voltage(MOTOR_CHANNEL_2, 3.3F);
 	HAL_TIM_PWM_Start(&htim15, TIM_CHANNEL_1);
 	HAL_TIMEx_PWMN_Start(&htim15, TIM_CHANNEL_1);
 	HAL_TIM_PWM_Start(&htim16, TIM_CHANNEL_1);
 	HAL_TIMEx_PWMN_Start(&htim16, TIM_CHANNEL_1);
 
 	/* ADC start */
-	adc_set_reference_voltage(0, 3.3F);
-	adc_set_reference_voltage(1, 3.3F);
+	adc_set_reference_voltage(MOTOR_CHANNEL_1, 3.3F);
+	adc_set_reference_voltage(MOTOR_CHANNEL_2, 3.3F);
 	HAL_ADCEx_Calibration_Start(&hadc1, ADC_SINGLE_ENDED);
 	HAL_ADC_Start_DMA(&hadc1, (uint32_t*) adc_reg_addr, NUM_OF_MOTORS);
-
   /* USER CODE END 2 */
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
 	while (1) {
-		pwm_set_voltage(0,
-				2.0F * adc_get_voltage(0) - adc_get_reference_voltage(0));
-		pwm_set_voltage(1,
-				2.0F * adc_get_voltage(1) - adc_get_reference_voltage(1));
+		pwm_set_voltage(MOTOR_CHANNEL_1,
+				2.0F * adc_get_voltage(MOTOR_CHANNEL_1)
+						- adc_get_reference_voltage(MOTOR_CHANNEL_1));
+		pwm_set_voltage(MOTOR_CHANNEL_2,
+				2.0F * adc_get_voltage(MOTOR_CHANNEL_2)
+						- adc_get_reference_voltage(MOTOR_CHANNEL_2));
 
 		/* Update PWM register */
 		__HAL_TIM_SET_COMPARE(&htim15, TIM_CHANNEL_1,
-				(uint32_t ) pwm_reg_addr[0]);
+				(uint32_t ) pwm_reg_addr[MOTOR_CHANNEL_1]);
 		__HAL_TIM_SET_COMPARE(&htim16, TIM_CHANNEL_1,
-				(uint32_t ) pwm_reg_addr[1]);
+				(uint32_t ) pwm_reg_addr[MOTOR_CHANNEL_2]);
+
+		int32_t count1 = encoder_get_count(ENC1);
+		int32_t count2 = encoder_get_count(ENC2);
 
 		/* TEST */
 		HAL_GPIO_TogglePin(TEST_GPIO_Port, TEST_Pin);
@@ -381,10 +390,10 @@ static void MX_TIM2_Init(void)
   htim2.Instance = TIM2;
   htim2.Init.Prescaler = 0;
   htim2.Init.CounterMode = TIM_COUNTERMODE_UP;
-  htim2.Init.Period = 4294967295;
+  htim2.Init.Period = 65536-1;
   htim2.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
   htim2.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
-  sConfig.EncoderMode = TIM_ENCODERMODE_TI1;
+  sConfig.EncoderMode = TIM_ENCODERMODE_TI12;
   sConfig.IC1Polarity = TIM_ICPOLARITY_RISING;
   sConfig.IC1Selection = TIM_ICSELECTION_DIRECTTI;
   sConfig.IC1Prescaler = TIM_ICPSC_DIV1;
@@ -430,10 +439,10 @@ static void MX_TIM3_Init(void)
   htim3.Instance = TIM3;
   htim3.Init.Prescaler = 0;
   htim3.Init.CounterMode = TIM_COUNTERMODE_UP;
-  htim3.Init.Period = 65535;
+  htim3.Init.Period = 65536-1;
   htim3.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
   htim3.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
-  sConfig.EncoderMode = TIM_ENCODERMODE_TI1;
+  sConfig.EncoderMode = TIM_ENCODERMODE_TI12;
   sConfig.IC1Polarity = TIM_ICPOLARITY_RISING;
   sConfig.IC1Selection = TIM_ICSELECTION_DIRECTTI;
   sConfig.IC1Prescaler = TIM_ICPSC_DIV1;
