@@ -77,30 +77,7 @@ static void MX_TIM16_Init(void);
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
-void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim) {
-	/* To avoid first interruption */
-	if (htim->Instance->CR1 & TIM_CR1_CEN_Msk) {
-		/* Check direction */
-		if (__HAL_TIM_IS_TIM_COUNTING_DOWN(htim)) {
-			/* Counter underflow */
-			if (htim->Instance == htim2.Instance) {
-				encoder_ofuf_count_dec(MOTOR_CHANNEL_1);
-			}
-			if (htim->Instance == htim3.Instance) {
-				encoder_ofuf_count_dec(MOTOR_CHANNEL_2);
-			}
-		} else {
-			/* Counter overflow */
-			if (htim->Instance == htim2.Instance) {
-				encoder_ofuf_count_inc(MOTOR_CHANNEL_1);
-			}
-			if (htim->Instance == htim3.Instance) {
-				encoder_ofuf_count_inc(MOTOR_CHANNEL_2);
-			}
 
-		}
-	}
-}
 /* USER CODE END 0 */
 
 /**
@@ -176,6 +153,8 @@ int main(void)
 				(uint32_t ) pwm_reg_addr[MOTOR_CHANNEL_1]);
 		__HAL_TIM_SET_COMPARE(&htim16, TIM_CHANNEL_1,
 				(uint32_t ) pwm_reg_addr[MOTOR_CHANNEL_2]);
+
+		int32_t count = encoder_get_count(ENC1);
 
 		/* TEST */
 		HAL_GPIO_TogglePin(TEST_GPIO_Port, TEST_Pin);

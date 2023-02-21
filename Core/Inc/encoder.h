@@ -10,7 +10,11 @@
 
 #include <stdint.h>
 
-void encoder_ofuf_count_inc(const uint8_t channel);
-void encoder_ofuf_count_dec(const uint8_t channel);
+typedef enum {
+	ENC1, ENC2, NUM_OF_ENCODERS
+} ENCODER_CHANNEL;
+
+void encoder_clear_count(const uint8_t channel);
+int32_t encoder_get_count(const uint8_t channel);
 
 #endif /* INC_ENCODER_H_ */
