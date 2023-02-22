@@ -35,9 +35,7 @@
 
 /* Private define ------------------------------------------------------------*/
 /* USER CODE BEGIN PD */
-#define NUM_OF_MOTORS (2)
-#define MOTOR_CHANNEL_1 (0)
-#define MOTOR_CHANNEL_2 (1)
+
 /* USER CODE END PD */
 
 /* Private macro -------------------------------------------------------------*/
@@ -59,7 +57,7 @@ TIM_HandleTypeDef htim15;
 TIM_HandleTypeDef htim16;
 
 /* USER CODE BEGIN PV */
-STATE state[2];
+
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -120,6 +118,7 @@ int main(void)
   MX_TIM16_Init();
   /* USER CODE BEGIN 2 */
 	/* State initialize */
+	extern STATE state[];
 	state[0].motor_current = 0.0;
 	state[0].motor_speed = 0.0;
 	state[0].motor_position = 0.0;

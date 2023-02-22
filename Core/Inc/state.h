@@ -8,7 +8,7 @@
 #ifndef INC_STATE_H_
 #define INC_STATE_H_
 
-#include <stdint.h>
+#include "stm32f3xx_hal.h"
 
 typedef struct {
 	float motor_current;
@@ -25,5 +25,9 @@ typedef struct {
 	float position_fbgain_Ti;
 	float position_fbgain_Td;
 } STATE;
+
+typedef enum {
+	MOTOR1, MOTOR2, NUM_OF_MOTORS
+} MOTOR_CHANNEL;
 
 #endif /* INC_STATE_H_ */

@@ -10,240 +10,235 @@
 #include "state.h"
 
 typedef enum {
-	SPI_STATUS_DISABLE,
-	SPI_STATUS_RQ_WAIT,
-	SPI_STATUS_RQ_RECEIVED,
-	SPI_STATUS_DATA_WAIT,
-	SPI_STATUS_DATA_RECEIVED
-} SPI_STATUS;
-
-typedef enum {
-	SPI_ADDR_MOTOR_CURRENT,
-	SPI_ADDR_MOTOR_SPEED,
-	SPI_ADDR_MOTOR_POSITION,
-	SPI_ADDR_RESERVED_1,
-	SPI_ADDR_CONTROL_MODE,
-	SPI_ADDR_CONTROL_TARGET,
-	SPI_ADDR_MOTOR_SUPPLY_VOLTAGE,
-	SPI_ADDR_RESERVED_2,
-	SPI_ADDR_CURRENT_FB_KP,
-	SPI_ADDR_CURRENT_FB_TI,
-	SPI_ADDR_SPEED_FB_KP,
-	SPI_ADDR_SPEED_FB_TI,
-	SPI_ADDR_POSITION_FB_KP,
-	SPI_ADDR_POSITION_FB_TI,
-	SPI_ADDR_POSITION_FB_TD,
-	SPI_ADDR_RESERVED_3
-} SPI_ADDR;
+	SPI_DTYPE_DO_NOT_CARE = 0U,
+	SPI_DTYPE_MOTOR_CURRENT,
+	SPI_DTYPE_MOTOR_SPEED,
+	SPI_DTYPE_MOTOR_POSITION,
+	SPI_DTYPE_CONTROL_MODE,
+	SPI_DTYPE_CONTROL_TARGET,
+	SPI_DTYPE_MOTOR_SUPPLY_VOLTAGE,
+	SPI_DTYPE_RESERVED_1,
+	SPI_DTYPE_CURRENT_FB_KP,
+	SPI_DTYPE_CURRENT_FB_TI,
+	SPI_DTYPE_SPEED_FB_KP,
+	SPI_DTYPE_SPEED_FB_TI,
+	SPI_DTYPE_POSITION_FB_KP,
+	SPI_DTYPE_POSITION_FB_TI,
+	SPI_DTYPE_POSITION_FB_TD,
+	SPI_DTYPE_RESERVED_2
+} SPI_DTYPE;
 
 #pragma pack(1)
 
-typedef union {
-	uint8_t u8[1];
-	struct {
-		uint8_t ADDRESS :4;
-		uint8_t CHANNEL :1;
-		uint8_t REWRITABLE :1;
-		uint8_t START :1;
-		uint8_t READY :1;
-	};
-} SPI_RQ;
+/* 8bit */
+typedef struct {
+	uint8_t DTYPE :4;
+	uint8_t RESERVED :3;
+	uint8_t CHANNEL :1;
+} SPI_REQ;
 
+/* 32bit */
 typedef union {
+	int8_t i8[4];
 	uint8_t u8[4];
+	int16_t i16[2];
 	uint16_t u16[2];
+	int32_t i32;
 	uint32_t u32;
 	float f32;
 } SPI_DATA;
+
+/* 80bit */
+typedef struct {
+	uint8_t READY[2];
+	uint8_t START;
+	SPI_REQ RREQ[2];
+	SPI_REQ WREQ;
+	SPI_DATA WDATA;
+} SPI_DW;
+
+/* 80bit */
+typedef struct {
+	uint16_t TIME;
+	SPI_DATA RDATA[2];
+} SPI_DR;
+
+typedef union {
+	uint8_t u8[10];
+	SPI_DW DW;
+	SPI_DR DR;
+} SPI_PACKET;
 
 #pragma pack() /* pack(1) */
 
 extern SPI_HandleTypeDef hspi1;
 extern STATE state[];
 
-static SPI_RQ rq, buf;
-static SPI_DATA dw, dr;
-static SPI_STATUS status = SPI_STATUS_DISABLE;
+static FlagStatus has_received = RESET;
+static SPI_REQ RREQ[2];
+static SPI_DW DW;
+static SPI_DR DR;
 
 void HAL_SPI_TxRxCpltCallback(SPI_HandleTypeDef *hspi) {
-	switch (status) {
-	case SPI_STATUS_RQ_WAIT:
-		/* RQ packet received */
-		status = SPI_STATUS_RQ_RECEIVED;
-
-		break;
-	case SPI_STATUS_DATA_WAIT:
-		/* RQ packet received */
-		status = SPI_STATUS_DATA_RECEIVED;
-
-		break;
-	default:
-		break;
-	}
+	has_received = SET;
 }
 
 void HAL_SPI_ErrorCallback(SPI_HandleTypeDef *hspi) {
 	spi_start();
 }
 
-static ErrorStatus spi_rq_res(void) {
-	if (!rq.READY && rq.START) {
-		uint8_t channel = rq.CHANNEL;
+/* Buffering RREQ */
+static void spi_update_RREQ(void) {
+	for (uint8_t i = 0; i < 2; i++) {
+		uint8_t CHANNEL = DW.RREQ[i].CHANNEL;
 
-		switch (rq.ADDRESS) {
-		case SPI_ADDR_MOTOR_CURRENT:
-			dr.f32 = state[channel].motor_current;
-			return SUCCESS;
-
-		case SPI_ADDR_MOTOR_SPEED:
-			dr.f32 = state[channel].motor_speed;
-			return SUCCESS;
-
-		case SPI_ADDR_MOTOR_POSITION:
-			dr.f32 = state[channel].motor_position;
-			return SUCCESS;
-
-		case SPI_ADDR_CONTROL_MODE:
-			dr.u32 = (uint32_t) state[channel].control_mode;
-			return SUCCESS;
-
-		case SPI_ADDR_CONTROL_TARGET:
-			dr.f32 = state[channel].control_target;
-			return SUCCESS;
-
-		case SPI_ADDR_MOTOR_SUPPLY_VOLTAGE:
-			dr.f32 = state[channel].motor_supply_voltage;
-			return SUCCESS;
-
-		case SPI_ADDR_CURRENT_FB_KP:
-			dr.f32 = state[channel].current_fbgain_Kp;
-			return SUCCESS;
-
-		case SPI_ADDR_CURRENT_FB_TI:
-			dr.f32 = state[channel].current_fbgain_Ti;
-			return SUCCESS;
-
-		case SPI_ADDR_SPEED_FB_KP:
-			dr.f32 = state[channel].speed_fbgain_Kp;
-			return SUCCESS;
-
-		case SPI_ADDR_SPEED_FB_TI:
-			dr.f32 = state[channel].speed_fbgain_Ti;
-			return SUCCESS;
-
-		case SPI_ADDR_POSITION_FB_KP:
-			dr.f32 = state[channel].position_fbgain_Kp;
-			return SUCCESS;
-
-		case SPI_ADDR_POSITION_FB_TI:
-			dr.f32 = state[channel].position_fbgain_Ti;
-			return SUCCESS;
-
-		case SPI_ADDR_POSITION_FB_TD:
-			dr.f32 = state[channel].position_fbgain_Td;
-			return SUCCESS;
-
-		default:
-			/* Invalid address */
-			dr.u32 = 0;
-			return ERROR;
+		if (CHANNEL < NUM_OF_MOTORS) {
+			RREQ[i] = DW.RREQ[i];
+		} else {
+			/* CHANNEL must be less than the number of motor state */
 		}
-	} else {
-		/* invalid RQ format */
-		dr.u32 = 0;
-		return ERROR;
 	}
 }
 
-static ErrorStatus spi_data_res(void) {
-	if (rq.REWRITABLE) {
-		uint8_t channel = rq.CHANNEL;
+static void spi_update_DW(void) {
+	SPI_DTYPE DTYPE = DW.WREQ.DTYPE;
+	uint8_t CHANNEL = DW.WREQ.CHANNEL;
+	SPI_DATA *WDATA = &DW.WDATA;
 
-		switch (rq.ADDRESS) {
-		case SPI_ADDR_CONTROL_MODE:
-			state[channel].control_mode = (uint8_t) dw.u32;
-			return SUCCESS;
+	if (CHANNEL < NUM_OF_MOTORS) {
+		switch (DTYPE) {
+		case SPI_DTYPE_CONTROL_MODE:
+			state[CHANNEL].control_mode = WDATA->u32;
+			break;
 
-		case SPI_ADDR_CONTROL_TARGET:
-			state[channel].control_target = dw.f32;
-			return SUCCESS;
+		case SPI_DTYPE_CONTROL_TARGET:
+			state[CHANNEL].control_target = WDATA->f32;
+			break;
 
-		case SPI_ADDR_MOTOR_SUPPLY_VOLTAGE:
-			state[channel].motor_supply_voltage = dw.f32;
-			return SUCCESS;
+		case SPI_DTYPE_MOTOR_SUPPLY_VOLTAGE:
+			state[CHANNEL].motor_supply_voltage = WDATA->f32;
+			break;
 
-		case SPI_ADDR_CURRENT_FB_KP:
-			state[channel].current_fbgain_Kp = dw.f32;
-			return SUCCESS;
+		case SPI_DTYPE_CURRENT_FB_KP:
+			state[CHANNEL].current_fbgain_Kp = WDATA->f32;
+			break;
 
-		case SPI_ADDR_CURRENT_FB_TI:
-			state[channel].current_fbgain_Ti = dw.f32;
-			return SUCCESS;
+		case SPI_DTYPE_CURRENT_FB_TI:
+			state[CHANNEL].current_fbgain_Ti = WDATA->f32;
+			break;
 
-		case SPI_ADDR_SPEED_FB_KP:
-			state[channel].speed_fbgain_Kp = dw.f32;
-			return SUCCESS;
+		case SPI_DTYPE_SPEED_FB_KP:
+			state[CHANNEL].speed_fbgain_Kp = WDATA->f32;
+			break;
 
-		case SPI_ADDR_SPEED_FB_TI:
-			state[channel].speed_fbgain_Ti = dw.f32;
-			return SUCCESS;
+		case SPI_DTYPE_SPEED_FB_TI:
+			state[CHANNEL].speed_fbgain_Ti = WDATA->f32;
+			break;
 
-		case SPI_ADDR_POSITION_FB_KP:
-			state[channel].position_fbgain_Kp = dw.f32;
-			return SUCCESS;
+		case SPI_DTYPE_POSITION_FB_KP:
+			state[CHANNEL].position_fbgain_Kp = WDATA->f32;
+			break;
 
-		case SPI_ADDR_POSITION_FB_TI:
-			state[channel].position_fbgain_Ti = dw.f32;
-			return SUCCESS;
+		case SPI_DTYPE_POSITION_FB_TI:
+			state[CHANNEL].position_fbgain_Ti = WDATA->f32;
+			break;
 
-		case SPI_ADDR_POSITION_FB_TD:
-			state[channel].position_fbgain_Td = dw.f32;
-			return SUCCESS;
+		case SPI_DTYPE_POSITION_FB_TD:
+			state[CHANNEL].position_fbgain_Td = WDATA->f32;
+			break;
 
 		default:
 			/* Invalid address */
-			return ERROR;
+			break;
 		}
 	} else {
-		/* Request is read only */
-		return SUCCESS;
+		/* CHANNEL must be less than the number of motor state */
+	}
+}
+
+static void spi_update_DR(void) {
+	/* Scanning lower and upper side of RREQ */
+	for (uint8_t i = 0; i < 2; i++) {
+		SPI_DTYPE DTYPE = RREQ[i].DTYPE;
+		uint8_t CHANNEL = RREQ[i].CHANNEL;
+		SPI_DATA *RDATA = &DR.RDATA[i];
+
+		switch (DTYPE) {
+		case SPI_DTYPE_MOTOR_CURRENT:
+			RDATA->f32 = state[CHANNEL].motor_current;
+			break;
+
+		case SPI_DTYPE_MOTOR_SPEED:
+			RDATA->f32 = state[CHANNEL].motor_speed;
+			break;
+
+		case SPI_DTYPE_MOTOR_POSITION:
+			RDATA->f32 = state[CHANNEL].motor_position;
+			break;
+
+		case SPI_DTYPE_CONTROL_MODE:
+			RDATA->u32 = (uint32_t) state[CHANNEL].control_mode;
+			break;
+
+		case SPI_DTYPE_CONTROL_TARGET:
+			RDATA->f32 = state[CHANNEL].control_target;
+			break;
+
+		case SPI_DTYPE_MOTOR_SUPPLY_VOLTAGE:
+			RDATA->f32 = state[CHANNEL].motor_supply_voltage;
+			break;
+
+		case SPI_DTYPE_CURRENT_FB_KP:
+			RDATA->f32 = state[CHANNEL].current_fbgain_Kp;
+			break;
+
+		case SPI_DTYPE_CURRENT_FB_TI:
+			RDATA->f32 = state[CHANNEL].current_fbgain_Ti;
+			break;
+
+		case SPI_DTYPE_SPEED_FB_KP:
+			RDATA->f32 = state[CHANNEL].speed_fbgain_Kp;
+			break;
+
+		case SPI_DTYPE_SPEED_FB_TI:
+			RDATA->f32 = state[CHANNEL].speed_fbgain_Ti;
+			break;
+
+		case SPI_DTYPE_POSITION_FB_KP:
+			RDATA->f32 = state[CHANNEL].position_fbgain_Kp;
+			break;
+
+		case SPI_DTYPE_POSITION_FB_TI:
+			RDATA->f32 = state[CHANNEL].position_fbgain_Ti;
+			break;
+
+		case SPI_DTYPE_POSITION_FB_TD:
+			RDATA->f32 = state[CHANNEL].position_fbgain_Td;
+			break;
+
+		default:
+			/* Invalid address */
+			RDATA->u32 = 0;
+			break;
+		}
 	}
 }
 
 void spi_start(void) {
-	HAL_SPI_TransmitReceive_IT(&hspi1, buf.u8, rq.u8, sizeof(SPI_RQ));
-	status = SPI_STATUS_RQ_WAIT;
+	has_received = RESET;
+	HAL_SPI_TransmitReceive_IT(&hspi1, ((SPI_PACKET) DR).u8,
+			((SPI_PACKET) DW).u8, sizeof(SPI_PACKET));
 }
 
 void spi_update(void) {
-	switch (status) {
-	case SPI_STATUS_RQ_RECEIVED:
-		if (spi_rq_res() == SUCCESS) {
-			/* Valid request */
-			status = SPI_STATUS_DATA_WAIT;
-			HAL_SPI_TransmitReceive_IT(&hspi1, dr.u8, dw.u8, sizeof(SPI_DATA));
-		} else {
-			/* Invalid request */
-			status = SPI_STATUS_RQ_WAIT;
-			HAL_SPI_TransmitReceive_IT(&hspi1, buf.u8, rq.u8, sizeof(SPI_RQ));
-		}
-
-		break;
-
-	case SPI_STATUS_DATA_RECEIVED:
-		if (spi_data_res() == SUCCESS) {
-			/* Valid data */
-			status = SPI_STATUS_RQ_WAIT;
-			HAL_SPI_TransmitReceive_IT(&hspi1, buf.u8, rq.u8, sizeof(SPI_RQ));
-		} else {
-			/* Invalid data */
-			status = SPI_STATUS_RQ_WAIT;
-			HAL_SPI_TransmitReceive_IT(&hspi1, buf.u8, rq.u8, sizeof(SPI_RQ));
-		}
-
-		break;
-
-	default:
-		break;
+	if (has_received == SET) {
+		spi_update_RREQ();
+		spi_update_DW();
+		spi_start();
+	} else {
+		/* Do nothing */
 	}
+
+	/* Set current state into TX buffer */
+	spi_update_DR();
 }
