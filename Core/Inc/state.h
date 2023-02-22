@@ -24,6 +24,7 @@ typedef struct {
 	float position_fbparam_Kp;
 	float position_fbparam_Ti;
 	float position_fbparam_Td;
+	uint8_t transmit_data_address;
 } STATE;
 
 typedef enum {

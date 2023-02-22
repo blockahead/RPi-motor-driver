@@ -169,7 +169,7 @@ int main(void)
 		/* Update PWM register */
 		pwm_command();
 
-		spi_update();
+		spi_update(state);
 
 		int32_t count1 = encoder_get_count(ENCODER1);
 		int32_t count2 = encoder_get_count(ENCODER2);
