@@ -15,7 +15,7 @@
 | 8 | PA2 | TIM15_CH1 | Motor 1 driver IN- |
 |||||
 | 9 | PA3 | - | NC |
-| 10 | PA4 | SPI1_NSS | Raspberry Pi SPI0 CEx |
+| 10 | PA4 | SPI1_NSS | Raspberry Pi SPI0 CEx, pull-up (10kOhm) |
 | 11 | PA5 | SPI1_SCK | Raspberry Pi SPI0 SCLK |
 | 12 | PA6 | SPI1_MISO | Raspberry Pi SPI0 MISO |
 | 13 | PA7 | SPI1_MOSI | Raspberry Pi SPI0 MOSI |
@@ -26,8 +26,8 @@
 | 17 | VDD | - | +3.3V |
 | 18 | PA8 | - | NC |
 | 19 | PA9 | - | NC |
-| 20 | PA10 | GPIO_OUT | Motor 1 driver HEN |
-| 21 | PA11 | GPIO_OUT | Motor 2 driver HEN |
+| 20 | PA10 | GPIO_OUT | Motor 1 driver HEN, pull-down (10kOhm) |
+| 21 | PA11 | GPIO_OUT | Motor 2 driver HEN, pull-down (10kOhm) |
 | 22 | PA12 | TIM16_CH1 | Motor 2 driver IN+ |
 | 23 | PA13 | SWDAT | ST-LINK |
 | 24 | PA14 | SWCLK | ST-LINK |
