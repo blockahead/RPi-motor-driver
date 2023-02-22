@@ -235,14 +235,15 @@ static void spi_update_DR(void) {
 
 void spi_start(void) {
 	has_received = RESET;
-	HAL_SPI_TransmitReceive_IT(&hspi1, ((SPI_PACKET) DR).u8,
-			((SPI_PACKET) DW).u8, sizeof(SPI_PACKET));
+	HAL_SPI_TransmitReceive_IT(&hspi1, ((SPI_PACKET*) &DR)->u8,
+			((SPI_PACKET*) &DW)->u8, sizeof(SPI_PACKET));
 }
 
 void spi_update(void) {
 	if (has_received == SET && spi_check_packet() == SUCCESS) {
 		spi_update_RREQ();
 		spi_update_DW();
+		spi_update_DR();
 		spi_start();
 	} else {
 		/* Do nothing */
