@@ -125,13 +125,13 @@ int main(void)
 	state[0].control_mode = 3;
 	state[0].control_target = 0.0;
 	state[0].motor_supply_voltage = 0.0;
-	state[0].current_fbgain_Kp = 0.0;
-	state[0].current_fbgain_Ti = 0.0;
-	state[0].speed_fbgain_Kp = 0.0;
-	state[0].speed_fbgain_Ti = 0.0;
-	state[0].position_fbgain_Kp = 0.0;
-	state[0].position_fbgain_Ti = 0.0;
-	state[0].position_fbgain_Td = 0.0;
+	state[0].current_fbparam_Kp = 0.0;
+	state[0].current_fbparam_Ti = 0.0;
+	state[0].speed_fbparam_Kp = 0.0;
+	state[0].speed_fbparam_Ti = 0.0;
+	state[0].position_fbparam_Kp = 0.0;
+	state[0].position_fbparam_Ti = 0.0;
+	state[0].position_fbparam_Td = 0.0;
 
 	state[1].motor_current = 0.0;
 	state[1].motor_speed = 0.0;
@@ -139,13 +139,13 @@ int main(void)
 	state[1].control_mode = 5;
 	state[1].control_target = 0.0;
 	state[1].motor_supply_voltage = 0.0;
-	state[1].current_fbgain_Kp = 0.0;
-	state[1].current_fbgain_Ti = 0.0;
-	state[1].speed_fbgain_Kp = 0.0;
-	state[1].speed_fbgain_Ti = 0.0;
-	state[1].position_fbgain_Kp = 0.0;
-	state[1].position_fbgain_Ti = 0.0;
-	state[1].position_fbgain_Td = 0.0;
+	state[1].current_fbparam_Kp = 0.0;
+	state[1].current_fbparam_Ti = 0.0;
+	state[1].speed_fbparam_Kp = 0.0;
+	state[1].speed_fbparam_Ti = 0.0;
+	state[1].position_fbparam_Kp = 0.0;
+	state[1].position_fbparam_Ti = 0.0;
+	state[1].position_fbparam_Td = 0.0;
 
 	encoder_set_pulse_per_rev(ENCODER1, 2000);
 	encoder_set_pulse_per_rev(ENCODER2, 2000);

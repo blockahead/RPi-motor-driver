@@ -52,7 +52,7 @@ typedef union {
 typedef struct {
 	uint8_t READY[2];
 	uint8_t START;
-	SPI_REQ RREQ[2];
+	SPI_REQ RREQ[SPI_RDATA_SIZE];
 	SPI_REQ WREQ;
 	SPI_DATA WDATA;
 } SPI_DW;
@@ -60,7 +60,7 @@ typedef struct {
 /* 80bit */
 typedef struct {
 	uint16_t TIME;
-	SPI_DATA RDATA[2];
+	SPI_DATA RDATA[SPI_RDATA_SIZE];
 } SPI_DR;
 
 typedef union {
@@ -75,7 +75,7 @@ extern SPI_HandleTypeDef hspi1;
 extern STATE state[];
 
 static FlagStatus has_received = RESET;
-static SPI_REQ RREQ[2];
+static SPI_REQ RREQ[SPI_RDATA_SIZE];
 static SPI_DW DW;
 static SPI_DR DR;
 
@@ -87,9 +87,18 @@ void HAL_SPI_ErrorCallback(SPI_HandleTypeDef *hspi) {
 	spi_start();
 }
 
+static ErrorStatus spi_check_packet(void) {
+	if (DW.START == 0x78) {
+		return SUCCESS;
+	} else {
+		/* Invalid start bit */
+		return ERROR;
+	}
+}
+
 /* Buffering RREQ */
 static void spi_update_RREQ(void) {
-	for (uint8_t i = 0; i < 2; i++) {
+	for (uint8_t i = 0; i < SPI_RDATA_SIZE; i++) {
 		uint8_t CHANNEL = DW.RREQ[i].CHANNEL;
 
 		if (CHANNEL < NUM_OF_MOTORS) {
@@ -120,31 +129,31 @@ static void spi_update_DW(void) {
 			break;
 
 		case SPI_DTYPE_CURRENT_FB_KP:
-			state[CHANNEL].current_fbgain_Kp = WDATA->f32;
+			state[CHANNEL].current_fbparam_Kp = WDATA->f32;
 			break;
 
 		case SPI_DTYPE_CURRENT_FB_TI:
-			state[CHANNEL].current_fbgain_Ti = WDATA->f32;
+			state[CHANNEL].current_fbparam_Ti = WDATA->f32;
 			break;
 
 		case SPI_DTYPE_SPEED_FB_KP:
-			state[CHANNEL].speed_fbgain_Kp = WDATA->f32;
+			state[CHANNEL].speed_fbparam_Kp = WDATA->f32;
 			break;
 
 		case SPI_DTYPE_SPEED_FB_TI:
-			state[CHANNEL].speed_fbgain_Ti = WDATA->f32;
+			state[CHANNEL].speed_fbparam_Ti = WDATA->f32;
 			break;
 
 		case SPI_DTYPE_POSITION_FB_KP:
-			state[CHANNEL].position_fbgain_Kp = WDATA->f32;
+			state[CHANNEL].position_fbparam_Kp = WDATA->f32;
 			break;
 
 		case SPI_DTYPE_POSITION_FB_TI:
-			state[CHANNEL].position_fbgain_Ti = WDATA->f32;
+			state[CHANNEL].position_fbparam_Ti = WDATA->f32;
 			break;
 
 		case SPI_DTYPE_POSITION_FB_TD:
-			state[CHANNEL].position_fbgain_Td = WDATA->f32;
+			state[CHANNEL].position_fbparam_Td = WDATA->f32;
 			break;
 
 		default:
@@ -158,7 +167,7 @@ static void spi_update_DW(void) {
 
 static void spi_update_DR(void) {
 	/* Scanning lower and upper side of RREQ */
-	for (uint8_t i = 0; i < 2; i++) {
+	for (uint8_t i = 0; i < SPI_RDATA_SIZE; i++) {
 		SPI_DTYPE DTYPE = RREQ[i].DTYPE;
 		uint8_t CHANNEL = RREQ[i].CHANNEL;
 		SPI_DATA *RDATA = &DR.RDATA[i];
@@ -189,31 +198,31 @@ static void spi_update_DR(void) {
 			break;
 
 		case SPI_DTYPE_CURRENT_FB_KP:
-			RDATA->f32 = state[CHANNEL].current_fbgain_Kp;
+			RDATA->f32 = state[CHANNEL].current_fbparam_Kp;
 			break;
 
 		case SPI_DTYPE_CURRENT_FB_TI:
-			RDATA->f32 = state[CHANNEL].current_fbgain_Ti;
+			RDATA->f32 = state[CHANNEL].current_fbparam_Ti;
 			break;
 
 		case SPI_DTYPE_SPEED_FB_KP:
-			RDATA->f32 = state[CHANNEL].speed_fbgain_Kp;
+			RDATA->f32 = state[CHANNEL].speed_fbparam_Kp;
 			break;
 
 		case SPI_DTYPE_SPEED_FB_TI:
-			RDATA->f32 = state[CHANNEL].speed_fbgain_Ti;
+			RDATA->f32 = state[CHANNEL].speed_fbparam_Ti;
 			break;
 
 		case SPI_DTYPE_POSITION_FB_KP:
-			RDATA->f32 = state[CHANNEL].position_fbgain_Kp;
+			RDATA->f32 = state[CHANNEL].position_fbparam_Kp;
 			break;
 
 		case SPI_DTYPE_POSITION_FB_TI:
-			RDATA->f32 = state[CHANNEL].position_fbgain_Ti;
+			RDATA->f32 = state[CHANNEL].position_fbparam_Ti;
 			break;
 
 		case SPI_DTYPE_POSITION_FB_TD:
-			RDATA->f32 = state[CHANNEL].position_fbgain_Td;
+			RDATA->f32 = state[CHANNEL].position_fbparam_Td;
 			break;
 
 		default:
@@ -231,7 +240,7 @@ void spi_start(void) {
 }
 
 void spi_update(void) {
-	if (has_received == SET) {
+	if (has_received == SET && spi_check_packet() == SUCCESS) {
 		spi_update_RREQ();
 		spi_update_DW();
 		spi_start();

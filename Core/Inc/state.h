@@ -17,13 +17,13 @@ typedef struct {
 	uint8_t control_mode;
 	float control_target;
 	float motor_supply_voltage;
-	float current_fbgain_Kp;
-	float current_fbgain_Ti;
-	float speed_fbgain_Kp;
-	float speed_fbgain_Ti;
-	float position_fbgain_Kp;
-	float position_fbgain_Ti;
-	float position_fbgain_Td;
+	float current_fbparam_Kp;
+	float current_fbparam_Ti;
+	float speed_fbparam_Kp;
+	float speed_fbparam_Ti;
+	float position_fbparam_Kp;
+	float position_fbparam_Ti;
+	float position_fbparam_Td;
 } STATE;
 
 typedef enum {

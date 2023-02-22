@@ -10,6 +10,8 @@
 
 #include "stm32f3xx_hal.h"
 
+#define SPI_RDATA_SIZE (2)
+
 void spi_start(void);
 void spi_update(void);
 
