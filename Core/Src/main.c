@@ -119,33 +119,6 @@ int main(void)
   /* USER CODE BEGIN 2 */
 	/* State initialize */
 	extern STATE state[];
-	state[0].motor_current = 0.0;
-	state[0].motor_speed = 0.0;
-	state[0].motor_position = 0.0;
-	state[0].control_mode = 3;
-	state[0].control_target = 0.0;
-	state[0].motor_supply_voltage = 0.0;
-	state[0].current_fbparam_Kp = 0.0;
-	state[0].current_fbparam_Ti = 0.0;
-	state[0].speed_fbparam_Kp = 0.0;
-	state[0].speed_fbparam_Ti = 0.0;
-	state[0].position_fbparam_Kp = 0.0;
-	state[0].position_fbparam_Ti = 0.0;
-	state[0].position_fbparam_Td = 0.0;
-
-	state[1].motor_current = 0.0;
-	state[1].motor_speed = 0.0;
-	state[1].motor_position = 0.0;
-	state[1].control_mode = 5;
-	state[1].control_target = 0.0;
-	state[1].motor_supply_voltage = 0.0;
-	state[1].current_fbparam_Kp = 0.0;
-	state[1].current_fbparam_Ti = 0.0;
-	state[1].speed_fbparam_Kp = 0.0;
-	state[1].speed_fbparam_Ti = 0.0;
-	state[1].position_fbparam_Kp = 0.0;
-	state[1].position_fbparam_Ti = 0.0;
-	state[1].position_fbparam_Td = 0.0;
 
 	encoder_set_pulse_per_rev(ENCODER1, 2000);
 	encoder_set_pulse_per_rev(ENCODER2, 2000);
@@ -166,15 +139,12 @@ int main(void)
 		/* TEST CODE START */
 		pwm_set_voltage(PWM1, 2.0F * csa_get_voltage(CSA1) - 3.3F);
 		pwm_set_voltage(PWM2, 2.0F * csa_get_voltage(CSA2) - 3.3F);
-
-		int32_t count1 = encoder_get_count(ENCODER1);
-		int32_t count2 = encoder_get_count(ENCODER2);
-		float rad1 = encoder_get_angle_rad(ENCODER1);
-		float rad2 = encoder_get_angle_rad(ENCODER2);
-		float motor_deg1 = rad1 / 36.0F * 180.0F / (3.14159265358979323846F);
-		float motor_deg2 = rad2 / 36.0F * 180.0F / (3.14159265358979323846F);
 		/* TEST CODE END */
 
+		state[MOTOR1].motor_current = csa_get_current(CSA1);
+		state[MOTOR2].motor_current = csa_get_current(CSA2);
+		state[MOTOR1].motor_position = encoder_get_angle_rad(ENCODER1);
+		state[MOTOR2].motor_position = encoder_get_angle_rad(ENCODER2);
 		spi_update(state);
 
 		/* Check main loop execution cycle */
