@@ -18,6 +18,5 @@ void pwm_set_supply_voltage(const uint8_t channel, const float voltage);
 float pwm_get_supply_voltage(const uint8_t channel);
 void pwm_set_voltage(const uint8_t channel, const float voltage);
 void pwm_start(void);
-void pwm_command(void);
 
 #endif /* INC_PWM_H_ */

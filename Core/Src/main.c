@@ -163,13 +163,9 @@ int main(void)
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
 	while (1) {
+		/* TEST CODE START */
 		pwm_set_voltage(PWM1, 2.0F * csa_get_voltage(CSA1) - 3.3F);
 		pwm_set_voltage(PWM2, 2.0F * csa_get_voltage(CSA2) - 3.3F);
-
-		/* Update PWM register */
-		pwm_command();
-
-		spi_update(state);
 
 		int32_t count1 = encoder_get_count(ENCODER1);
 		int32_t count2 = encoder_get_count(ENCODER2);
@@ -177,8 +173,11 @@ int main(void)
 		float rad2 = encoder_get_angle_rad(ENCODER2);
 		float motor_deg1 = rad1 / 36.0F * 180.0F / (3.14159265358979323846F);
 		float motor_deg2 = rad2 / 36.0F * 180.0F / (3.14159265358979323846F);
+		/* TEST CODE END */
 
-		/* TEST */
+		spi_update(state);
+
+		/* Check main loop execution cycle */
 		HAL_GPIO_TogglePin(TEST_GPIO_Port, TEST_Pin);
     /* USER CODE END WHILE */
 
