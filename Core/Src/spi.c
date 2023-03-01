@@ -255,9 +255,14 @@ void spi_start(void) {
 }
 
 void spi_update(STATE state[]) {
-	if (has_received == SET && spi_check_packet() == SUCCESS) {
-		spi_update_state(state);
-		spi_update_DR(state);
+	if (has_received == SET) {
+		if (spi_check_packet() == SUCCESS) {
+			spi_update_state(state);
+			spi_update_DR(state);
+		} else {
+			/* Do nothing */
+		}
+
 		spi_start();
 	} else {
 		/* Do nothing */
