@@ -35,9 +35,7 @@
 
 /* Private define ------------------------------------------------------------*/
 /* USER CODE BEGIN PD */
-#define NUM_OF_MOTORS (2)
-#define MOTOR_CHANNEL_1 (0)
-#define MOTOR_CHANNEL_2 (1)
+
 /* USER CODE END PD */
 
 /* Private macro -------------------------------------------------------------*/
@@ -59,7 +57,7 @@ TIM_HandleTypeDef htim15;
 TIM_HandleTypeDef htim16;
 
 /* USER CODE BEGIN PV */
-STATE state[2];
+
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -120,19 +118,20 @@ int main(void)
   MX_TIM16_Init();
   /* USER CODE BEGIN 2 */
 	/* State initialize */
+	extern STATE state[];
 	state[0].motor_current = 0.0;
 	state[0].motor_speed = 0.0;
 	state[0].motor_position = 0.0;
 	state[0].control_mode = 3;
 	state[0].control_target = 0.0;
 	state[0].motor_supply_voltage = 0.0;
-	state[0].current_fbgain_Kp = 0.0;
-	state[0].current_fbgain_Ti = 0.0;
-	state[0].speed_fbgain_Kp = 0.0;
-	state[0].speed_fbgain_Ti = 0.0;
-	state[0].position_fbgain_Kp = 0.0;
-	state[0].position_fbgain_Ti = 0.0;
-	state[0].position_fbgain_Td = 0.0;
+	state[0].current_fbparam_Kp = 0.0;
+	state[0].current_fbparam_Ti = 0.0;
+	state[0].speed_fbparam_Kp = 0.0;
+	state[0].speed_fbparam_Ti = 0.0;
+	state[0].position_fbparam_Kp = 0.0;
+	state[0].position_fbparam_Ti = 0.0;
+	state[0].position_fbparam_Td = 0.0;
 
 	state[1].motor_current = 0.0;
 	state[1].motor_speed = 0.0;
@@ -140,13 +139,13 @@ int main(void)
 	state[1].control_mode = 5;
 	state[1].control_target = 0.0;
 	state[1].motor_supply_voltage = 0.0;
-	state[1].current_fbgain_Kp = 0.0;
-	state[1].current_fbgain_Ti = 0.0;
-	state[1].speed_fbgain_Kp = 0.0;
-	state[1].speed_fbgain_Ti = 0.0;
-	state[1].position_fbgain_Kp = 0.0;
-	state[1].position_fbgain_Ti = 0.0;
-	state[1].position_fbgain_Td = 0.0;
+	state[1].current_fbparam_Kp = 0.0;
+	state[1].current_fbparam_Ti = 0.0;
+	state[1].speed_fbparam_Kp = 0.0;
+	state[1].speed_fbparam_Ti = 0.0;
+	state[1].position_fbparam_Kp = 0.0;
+	state[1].position_fbparam_Ti = 0.0;
+	state[1].position_fbparam_Td = 0.0;
 
 	encoder_set_pulse_per_rev(ENCODER1, 2000);
 	encoder_set_pulse_per_rev(ENCODER2, 2000);
@@ -170,7 +169,7 @@ int main(void)
 		/* Update PWM register */
 		pwm_command();
 
-		spi_update();
+		spi_update(state);
 
 		int32_t count1 = encoder_get_count(ENCODER1);
 		int32_t count2 = encoder_get_count(ENCODER2);

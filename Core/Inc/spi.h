@@ -10,7 +10,9 @@
 
 #include "stm32f3xx_hal.h"
 
+#include "state.h"
+
 void spi_start(void);
-void spi_update(void);
+void spi_update(STATE state[]);
 
 #endif /* INC_SPI_H_ */

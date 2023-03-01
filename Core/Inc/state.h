@@ -8,7 +8,7 @@
 #ifndef INC_STATE_H_
 #define INC_STATE_H_
 
-#include <stdint.h>
+#include "stm32f3xx_hal.h"
 
 typedef struct {
 	float motor_current;
@@ -17,13 +17,18 @@ typedef struct {
 	uint8_t control_mode;
 	float control_target;
 	float motor_supply_voltage;
-	float current_fbgain_Kp;
-	float current_fbgain_Ti;
-	float speed_fbgain_Kp;
-	float speed_fbgain_Ti;
-	float position_fbgain_Kp;
-	float position_fbgain_Ti;
-	float position_fbgain_Td;
+	float current_fbparam_Kp;
+	float current_fbparam_Ti;
+	float speed_fbparam_Kp;
+	float speed_fbparam_Ti;
+	float position_fbparam_Kp;
+	float position_fbparam_Ti;
+	float position_fbparam_Td;
+	uint8_t transmit_data_address;
 } STATE;
+
+typedef enum {
+	MOTOR1, MOTOR2, NUM_OF_MOTORS
+} MOTOR_CHANNEL;
 
 #endif /* INC_STATE_H_ */
