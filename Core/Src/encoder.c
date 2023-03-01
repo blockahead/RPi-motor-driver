@@ -53,17 +53,19 @@ void encoder_clear_count(const uint8_t channel) {
 	switch (channel) {
 	case ENCODER1:
 		__HAL_TIM_SET_COUNTER(&htim2, 0);
+		ofuf_count[ENCODER1] = 0;
+
 		break;
 
 	case ENCODER2:
 		__HAL_TIM_SET_COUNTER(&htim3, 0);
+		ofuf_count[ENCODER2] = 0;
+
 		break;
 
 	default:
-		return;
+		break;
 	}
-
-	ofuf_count[channel] = 0;
 }
 
 void encoder_set_pulse_per_rev(const uint8_t channel, const uint16_t ppr) {
@@ -80,22 +82,16 @@ void encoder_set_pulse_per_rev(const uint8_t channel, const uint16_t ppr) {
 }
 
 int32_t encoder_get_count(const uint8_t channel) {
-	uint16_t lower;
-
 	switch (channel) {
 	case ENCODER1:
-		lower = __HAL_TIM_GET_COUNTER(&htim2);
-		break;
+		return (ofuf_count[ENCODER1] << 16) | __HAL_TIM_GET_COUNTER(&htim2);
 
 	case ENCODER2:
-		lower = __HAL_TIM_GET_COUNTER(&htim3);
-		break;
+		return (ofuf_count[ENCODER2] << 16) | __HAL_TIM_GET_COUNTER(&htim3);
 
 	default:
 		return 0;
 	}
-
-	return (ofuf_count[channel] << 16) | lower;
 }
 
 float encoder_get_angle_rad(const uint8_t channel) {
@@ -104,8 +100,6 @@ float encoder_get_angle_rad(const uint8_t channel) {
 	case ENCODER2:
 		return TWOPI * (float) encoder_get_count(channel)
 				/ (float) pulse_per_rev[channel];
-
-		break;
 
 	default:
 		return 0.0F;
