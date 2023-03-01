@@ -120,13 +120,9 @@ int main(void)
 	/* State initialize */
 	extern STATE state[];
 
-	encoder_set_pulse_per_rev(ENCODER1, 2000);
-	encoder_set_pulse_per_rev(ENCODER2, 2000);
 	encoder_start();
-
 	pwm_start();
 	csa_start();
-
 	spi_start();
   /* USER CODE END 2 */
 
@@ -139,6 +135,10 @@ int main(void)
 		/* TEST CODE END */
 
 		/* Updating state */
+		encoder_set_pulse_per_rev(ENCODER1,
+				state[MOTOR1].motor_encoder_resolution);
+		encoder_set_pulse_per_rev(ENCODER2,
+				state[MOTOR2].motor_encoder_resolution);
 		pwm_set_supply_voltage(PWM1, state[MOTOR1].motor_supply_voltage);
 		pwm_set_supply_voltage(PWM2, state[MOTOR2].motor_supply_voltage);
 		state[MOTOR1].motor_current = csa_get_current(CSA1);

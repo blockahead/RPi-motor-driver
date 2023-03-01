@@ -15,7 +15,7 @@ typedef enum {
 	SPI_ADDR_CONTROL_MODE,
 	SPI_ADDR_CONTROL_TARGET,
 	SPI_ADDR_MOTOR_SUPPLY_VOLTAGE,
-	SPI_ADDR_RESERVED_1,
+	SPI_ADDR_MOTOR_ENCODER_RESOLUTION,
 	SPI_ADDR_CURRENT_FB_KP,
 	SPI_ADDR_CURRENT_FB_TI,
 	SPI_ADDR_SPEED_FB_KP,
@@ -93,6 +93,7 @@ static ErrorStatus spi_check_rdata_address(const SPI_ADDR addr) {
 	case SPI_ADDR_CONTROL_MODE:
 	case SPI_ADDR_CONTROL_TARGET:
 	case SPI_ADDR_MOTOR_SUPPLY_VOLTAGE:
+	case SPI_ADDR_MOTOR_ENCODER_RESOLUTION:
 	case SPI_ADDR_CURRENT_FB_KP:
 	case SPI_ADDR_CURRENT_FB_TI:
 	case SPI_ADDR_SPEED_FB_KP:
@@ -121,6 +122,10 @@ static void spi_update_state_sub(STATE state[], const SPI_DATA *wdata,
 
 	case SPI_ADDR_MOTOR_SUPPLY_VOLTAGE:
 		state->motor_supply_voltage = wdata->f32;
+		break;
+
+	case SPI_ADDR_MOTOR_ENCODER_RESOLUTION:
+		state->motor_encoder_resolution = wdata->u32;
 		break;
 
 	case SPI_ADDR_CURRENT_FB_KP:
@@ -158,7 +163,6 @@ static void spi_update_state_sub(STATE state[], const SPI_DATA *wdata,
 		} else {
 			/* Keep current address if request address is invalid */
 		}
-
 		break;
 
 	default:
@@ -195,6 +199,10 @@ static void spi_update_DR_RDATA(SPI_DATA *rdata, const STATE *state) {
 
 	case SPI_ADDR_MOTOR_SUPPLY_VOLTAGE:
 		rdata->f32 = state->motor_supply_voltage;
+		break;
+
+	case SPI_ADDR_MOTOR_ENCODER_RESOLUTION:
+		rdata->u32 = state->motor_encoder_resolution;
 		break;
 
 	case SPI_ADDR_CURRENT_FB_KP:

@@ -22,7 +22,6 @@ void pwm_set_supply_voltage(const uint8_t channel, const float voltage) {
 	case PWM1:
 	case PWM2:
 		supply_voltage[channel] = saturation(voltage, 1.0F, voltage);
-
 		break;
 
 	default:
@@ -50,7 +49,6 @@ void pwm_set_voltage(const uint8_t channel, const float voltage) {
 				supply_voltage[PWM1]);
 		__HAL_TIM_SET_COMPARE(&htim15, TIM_CHANNEL_1,
 				(uint32_t ) ((float) REG_ZERO * (1.0F + target_voltage / supply_voltage[PWM1])));
-
 		break;
 
 	case PWM2:
@@ -58,7 +56,6 @@ void pwm_set_voltage(const uint8_t channel, const float voltage) {
 				supply_voltage[PWM2]);
 		__HAL_TIM_SET_COMPARE(&htim16, TIM_CHANNEL_1,
 				(uint32_t ) ((float) REG_ZERO * (1.0F + target_voltage / supply_voltage[PWM2])));
-
 		break;
 
 	default:
