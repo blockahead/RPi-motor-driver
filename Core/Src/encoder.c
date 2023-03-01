@@ -54,13 +54,11 @@ void encoder_clear_count(const uint8_t channel) {
 	case ENCODER1:
 		__HAL_TIM_SET_COUNTER(&htim2, 0);
 		ofuf_count[ENCODER1] = 0;
-
 		break;
 
 	case ENCODER2:
 		__HAL_TIM_SET_COUNTER(&htim3, 0);
 		ofuf_count[ENCODER2] = 0;
-
 		break;
 
 	default:
@@ -73,7 +71,6 @@ void encoder_set_pulse_per_rev(const uint8_t channel, const uint16_t ppr) {
 	case ENCODER1:
 	case ENCODER2:
 		pulse_per_rev[channel] = ppr;
-
 		break;
 
 	default:

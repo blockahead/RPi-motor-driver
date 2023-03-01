@@ -59,7 +59,7 @@
 | 0 | 1 | 0 | 0 | Control mode |
 | 0 | 1 | 0 | 1 | Control target |
 | 0 | 1 | 1 | 0 | Motor supply voltage |
-| 0 | 1 | 1 | 1 | Reserved |
+| 0 | 1 | 1 | 1 | Motor encoder resolution |
 | 1 | 0 | 0 | 0 | Current feedback parameter Kp |
 | 1 | 0 | 0 | 1 | Current feedback parameter Ti |
 | 1 | 0 | 1 | 0 | Speed feedback parameter Kp |
@@ -118,6 +118,12 @@
 | Bit | Description |
 | - | - |
 | DATA31-DATA0 | Supply voltage (V) as 32bit float |
+
+#### Motor encoder resolution
+
+| Bit | Description |
+| - | - |
+| DATA31-DATA0 | Encoder resolution (pulse/rev) as 32bit unsigned integer |
 
 #### Feedback parameters
 

@@ -17,6 +17,7 @@ typedef struct {
 	uint8_t control_mode;
 	float control_target;
 	float motor_supply_voltage;
+	uint32_t motor_encoder_resolution;
 	float current_fbparam_Kp;
 	float current_fbparam_Ti;
 	float speed_fbparam_Kp;
