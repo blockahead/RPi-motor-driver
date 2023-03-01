@@ -124,10 +124,7 @@ int main(void)
 	encoder_set_pulse_per_rev(ENCODER2, 2000);
 	encoder_start();
 
-	pwm_set_supply_voltage(PWM1, 3.3F);
-	pwm_set_supply_voltage(PWM2, 3.3F);
 	pwm_start();
-
 	csa_start();
 
 	spi_start();
@@ -137,10 +134,13 @@ int main(void)
   /* USER CODE BEGIN WHILE */
 	while (1) {
 		/* TEST CODE START */
-		pwm_set_voltage(PWM1, 2.0F * csa_get_voltage(CSA1) - 3.3F);
-		pwm_set_voltage(PWM2, 2.0F * csa_get_voltage(CSA2) - 3.3F);
+		pwm_set_voltage(PWM1, state[MOTOR1].control_target);
+		pwm_set_voltage(PWM2, state[MOTOR2].control_target);
 		/* TEST CODE END */
 
+		/* Updating state */
+		pwm_set_supply_voltage(PWM1, state[MOTOR1].motor_supply_voltage);
+		pwm_set_supply_voltage(PWM2, state[MOTOR2].motor_supply_voltage);
 		state[MOTOR1].motor_current = csa_get_current(CSA1);
 		state[MOTOR2].motor_current = csa_get_current(CSA2);
 		state[MOTOR1].motor_position = encoder_get_angle_rad(ENCODER1);

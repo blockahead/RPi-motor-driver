@@ -257,17 +257,18 @@ void spi_start(void) {
 void spi_update(STATE state[]) {
 	if (has_received == SET) {
 		if (spi_check_packet() == SUCCESS) {
+			/* Update state if received data is valid */
 			spi_update_state(state);
-			spi_update_DR(state);
 		} else {
 			/* Do nothing */
 		}
 
+		/* Set current state into transmit buffer */
+		spi_update_DR(state);
+
+		/* Restart receiving data */
 		spi_start();
 	} else {
 		/* Do nothing */
 	}
-
-	/* Set current state into transmit buffer */
-	spi_update_DR(state);
 }
