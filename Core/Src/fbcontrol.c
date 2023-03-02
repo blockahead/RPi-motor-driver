@@ -20,7 +20,9 @@ typedef enum {
 	FBTYPE_CURRENT, FBTYPE_SPEED, FBTYPE_POSITION, NUM_OF_FBTYPES,
 } FBTYPE;
 
-static FBCONTROL_PARAM fbc[NUM_OF_MOTORS][NUM_OF_FBTYPES];
+static FBCONTROL_PARAM fbc[NUM_OF_FBTYPES][NUM_OF_MOTORS];
+
+void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim) {}
 
 static float fbcontrol_pid(const float r, const float x, FBCONTROL_PARAM *param) {
 	float e = r - x;
@@ -33,8 +35,8 @@ static float fbcontrol_pid(const float r, const float x, FBCONTROL_PARAM *param)
 }
 
 void fbcontrol_start(void) {
-	for (uint8_t i = 0; i < NUM_OF_MOTORS; i++) {
-		for (uint8_t j = 0; j < NUM_OF_FBTYPES; j++) {
+	for (uint8_t i = 0; i < NUM_OF_FBTYPES; i++) {
+		for (uint8_t j = 0; j < NUM_OF_MOTORS; j++) {
 			fbc[i][j].Ts = 1.0F;
 			fbc[i][j].Kp = 0.0F;
 			fbc[i][j].Ki = 0.0F;
