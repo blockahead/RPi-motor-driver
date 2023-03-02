@@ -124,6 +124,7 @@ int main(void)
 	/* State initialize */
 	extern STATE state[];
 
+	current_feedback_start();
 	encoder_start();
 	pwm_start();
 	csa_start();
@@ -152,7 +153,7 @@ int main(void)
 		spi_update(state);
 
 		/* Check main loop execution cycle */
-		HAL_GPIO_TogglePin(TEST_GPIO_Port, TEST_Pin);
+//		HAL_GPIO_TogglePin(TEST_GPIO_Port, TEST_Pin);
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */

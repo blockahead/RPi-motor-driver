@@ -9,5 +9,6 @@
 #define INC_CURRENT_FEEDBACK_H_
 
 void current_feedback(void);
+void current_feedback_start(void);
 
 #endif /* INC_CURRENT_FEEDBACK_H_ */

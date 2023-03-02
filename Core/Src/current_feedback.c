@@ -17,6 +17,8 @@ typedef struct {
 	float ei;
 } CURRENT_FB_PARAM;
 
+extern TIM_HandleTypeDef htim17;
+
 /* Sampling period (s) */
 static const float Ts = 100.0e-6F;
 static CURRENT_FB_PARAM param[NUM_OF_MOTORS];
@@ -29,7 +31,7 @@ static float current_feedback_pi(const float r, const float y,
 	return param->Kp * e + param->Ki * param->ei;
 }
 
-void current_feedback_update_params(void){
+void current_feedback_update_params(void) {
 
 }
 
@@ -38,4 +40,8 @@ void current_feedback(void) {
 			current_feedback_pi(0.0F, csa_get_current(CSA1), &param[MOTOR1]));
 	pwm_set_voltage(PWM2,
 			current_feedback_pi(0.0F, csa_get_current(CSA2), &param[MOTOR2]));
+}
+
+void current_feedback_start(void) {
+	HAL_TIM_Base_Start_IT(&htim17);
 }

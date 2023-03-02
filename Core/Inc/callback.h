@@ -18,6 +18,7 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim) {
 		if (htim->Instance == TIM17) {
 			/* 100us timer interruption */
 			current_feedback();
+			HAL_GPIO_TogglePin(TEST_GPIO_Port, TEST_Pin);
 		} else if (htim->Instance == TIM2) {
 			/* Encoder1 overflow/underflow */
 			encoder_ofuf(ENCODER1, __HAL_TIM_IS_TIM_COUNTING_DOWN(htim));
