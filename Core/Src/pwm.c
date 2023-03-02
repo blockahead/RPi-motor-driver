@@ -17,7 +17,7 @@ extern TIM_HandleTypeDef htim16;
 
 static float supply_voltage[NUM_OF_PWMS] = { 1.0F, 1.0F };
 
-void pwm_set_supply_voltage(const uint8_t channel, const float voltage) {
+void pwm_set_supply_voltage(const PWM_CHANNEL channel, const float voltage) {
 	switch (channel) {
 	case PWM1:
 	case PWM2:
@@ -29,7 +29,7 @@ void pwm_set_supply_voltage(const uint8_t channel, const float voltage) {
 	}
 }
 
-float pwm_get_supply_voltage(const uint8_t channel) {
+float pwm_get_supply_voltage(const PWM_CHANNEL channel) {
 	switch (channel) {
 	case PWM1:
 	case PWM2:
@@ -40,7 +40,7 @@ float pwm_get_supply_voltage(const uint8_t channel) {
 	}
 }
 
-void pwm_set_voltage(const uint8_t channel, const float voltage) {
+void pwm_set_voltage(const PWM_CHANNEL channel, const float voltage) {
 	float target_voltage;
 
 	switch (channel) {

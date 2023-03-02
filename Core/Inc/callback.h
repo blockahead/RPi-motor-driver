@@ -10,16 +10,19 @@
 
 #include "encoder.h"
 #include "spi.h"
+#include "current_feedback.h"
 
 /* Timer overflow/underflow interruption */
 void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim) {
 	if (htim->Instance->CR1 & TIM_CR1_CEN_Msk) {
-		/* Encoder*/
-		if (htim->Instance == TIM2) {
+		if (htim->Instance == TIM17) {
+			/* 100us timer interruption */
+			current_feedback();
+		} else if (htim->Instance == TIM2) {
+			/* Encoder1 overflow/underflow */
 			encoder_ofuf(ENCODER1, __HAL_TIM_IS_TIM_COUNTING_DOWN(htim));
-		}
-
-		if (htim->Instance == TIM3) {
+		} else if (htim->Instance == TIM3) {
+			/* Encoder1 overflow/underflow */
 			encoder_ofuf(ENCODER2, __HAL_TIM_IS_TIM_COUNTING_DOWN(htim));
 		}
 	}

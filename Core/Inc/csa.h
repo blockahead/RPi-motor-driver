@@ -14,8 +14,9 @@ typedef enum {
 	CSA1, CSA2, NUM_OF_CSAS
 } CSA_CHANNEL;
 
-float csa_get_voltage(const uint8_t channel);
-float csa_get_current(const uint8_t channel);
+uint16_t csa_get_reg(const CSA_CHANNEL channel);
+float csa_get_voltage(const CSA_CHANNEL channel);
+float csa_get_current(const CSA_CHANNEL channel);
 void csa_start(void);
 
 #endif /* INC_CSA_H_ */

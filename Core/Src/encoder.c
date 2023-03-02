@@ -17,17 +17,17 @@ static uint16_t ofuf_count[NUM_OF_ENCODERS] = { 0, 0 };
 static uint16_t pulse_per_rev[NUM_OF_ENCODERS] = { 0, 0 };
 
 /* Timer overflow/underflow interruption */
-void encoder_ofuf(const ENCODER_CHANNEL encoder, const FlagStatus is_down) {
+void encoder_ofuf(const ENCODER_CHANNEL channel, const FlagStatus is_down) {
 	if (is_down) {
 		/* Counter underflow */
-		ofuf_count[encoder]--;
+		ofuf_count[channel]--;
 	} else {
 		/* Counter overflow */
-		ofuf_count[encoder]++;
+		ofuf_count[channel]++;
 	}
 }
 
-void encoder_clear_count(const uint8_t channel) {
+void encoder_clear_count(const ENCODER_CHANNEL channel) {
 	switch (channel) {
 	case ENCODER1:
 		__HAL_TIM_SET_COUNTER(&htim2, 0);
@@ -44,7 +44,8 @@ void encoder_clear_count(const uint8_t channel) {
 	}
 }
 
-void encoder_set_pulse_per_rev(const uint8_t channel, const uint16_t ppr) {
+void encoder_set_pulse_per_rev(const ENCODER_CHANNEL channel,
+		const uint16_t ppr) {
 	switch (channel) {
 	case ENCODER1:
 	case ENCODER2:
@@ -56,7 +57,7 @@ void encoder_set_pulse_per_rev(const uint8_t channel, const uint16_t ppr) {
 	}
 }
 
-int32_t encoder_get_count(const uint8_t channel) {
+int32_t encoder_get_count(const ENCODER_CHANNEL channel) {
 	switch (channel) {
 	case ENCODER1:
 		return (ofuf_count[ENCODER1] << 16) | __HAL_TIM_GET_COUNTER(&htim2);
@@ -69,7 +70,7 @@ int32_t encoder_get_count(const uint8_t channel) {
 	}
 }
 
-float encoder_get_angle_rad(const uint8_t channel) {
+float encoder_get_angle_rad(const ENCODER_CHANNEL channel) {
 	switch (channel) {
 	case ENCODER1:
 	case ENCODER2:

@@ -22,8 +22,6 @@ typedef enum {
 
 static FBCONTROL_PARAM fbc[NUM_OF_FBTYPES][NUM_OF_MOTORS];
 
-void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim) {}
-
 static float fbcontrol_pid(const float r, const float x, FBCONTROL_PARAM *param) {
 	float e = r - x;
 	float xd = (param->x_pre - x) / param->Ts;
