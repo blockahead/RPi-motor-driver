@@ -22,6 +22,7 @@
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 #include "state.h"
+#include "callback.h"
 #include "encoder.h"
 #include "pwm.h"
 #include "csa.h"

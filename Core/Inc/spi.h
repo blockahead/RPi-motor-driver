@@ -12,6 +12,8 @@
 
 #include "state.h"
 
+void spi_receive(void);
+void spi_error(void);
 void spi_start(void);
 void spi_update(STATE state[]);
 

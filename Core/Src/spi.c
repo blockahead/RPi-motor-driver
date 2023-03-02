@@ -67,11 +67,11 @@ static FlagStatus has_received = RESET;
 static SPI_DW dw;
 static SPI_DR dr;
 
-void HAL_SPI_TxRxCpltCallback(SPI_HandleTypeDef *hspi) {
+void spi_receive(void) {
 	has_received = SET;
 }
 
-void HAL_SPI_ErrorCallback(SPI_HandleTypeDef *hspi) {
+void spi_error(void) {
 	HAL_SPI_Abort(&hspi1);
 	spi_start();
 }

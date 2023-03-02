@@ -14,6 +14,7 @@ typedef enum {
 	ENCODER1, ENCODER2, NUM_OF_ENCODERS
 } ENCODER_CHANNEL;
 
+void encoder_ofuf(const ENCODER_CHANNEL encoder, const FlagStatus is_down);
 void encoder_clear_count(const uint8_t channel);
 void encoder_set_pulse_per_rev(const uint8_t channel, const uint16_t ppr);
 int32_t encoder_get_count(const uint8_t channel);

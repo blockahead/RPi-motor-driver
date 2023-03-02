@@ -17,35 +17,13 @@ static uint16_t ofuf_count[NUM_OF_ENCODERS] = { 0, 0 };
 static uint16_t pulse_per_rev[NUM_OF_ENCODERS] = { 0, 0 };
 
 /* Timer overflow/underflow interruption */
-void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim) {
-	/* Encoder 1 */
-	if (htim->Instance == TIM2) {
-		/* To avoid first interruption */
-		if (htim->Instance->CR1 & TIM_CR1_CEN_Msk) {
-			/* Check direction */
-			if (__HAL_TIM_IS_TIM_COUNTING_DOWN(htim)) {
-				/* Counter underflow */
-				ofuf_count[ENCODER1]--;
-			} else {
-				/* Counter overflow */
-				ofuf_count[ENCODER1]++;
-			}
-		}
-	}
-
-	/* Encoder 2 */
-	if (htim->Instance == TIM3) {
-		/* To avoid first interruption */
-		if (htim->Instance->CR1 & TIM_CR1_CEN_Msk) {
-			/* Check direction */
-			if (__HAL_TIM_IS_TIM_COUNTING_DOWN(htim)) {
-				/* Counter underflow */
-				ofuf_count[ENCODER2]--;
-			} else {
-				/* Counter overflow */
-				ofuf_count[ENCODER2]++;
-			}
-		}
+void encoder_ofuf(const ENCODER_CHANNEL encoder, const FlagStatus is_down) {
+	if (is_down) {
+		/* Counter underflow */
+		ofuf_count[encoder]--;
+	} else {
+		/* Counter overflow */
+		ofuf_count[encoder]++;
 	}
 }
 
