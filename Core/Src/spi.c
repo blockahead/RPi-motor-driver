@@ -37,12 +37,12 @@ typedef union {
 
 extern SPI_HandleTypeDef hspi1;
 
-static BOOL hasreceived = RESET;
+static BOOL hasreceived = FALSE;
 static SPI_DW dw;
 static SPI_DR dr;
 
 void spi_receive(void) {
-	hasreceived = SET;
+	hasreceived = TRUE;
 }
 
 void spi_error(void) {

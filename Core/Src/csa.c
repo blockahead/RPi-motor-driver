@@ -18,7 +18,7 @@ uint16_t csa_get_reg(const CSA_CHANNEL channel) {
 	return reg[channel];
 }
 
-float csa_get_voltage(const CSA_CHANNEL channel) {
+static float csa_get_voltage(const CSA_CHANNEL channel) {
 	switch (channel) {
 	case CSA1:
 	case CSA2:

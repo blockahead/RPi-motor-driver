@@ -17,7 +17,7 @@ static uint16_t ofuf_count[NUM_OF_ENCODERS] = { 0, 0 };
 static uint16_t pulse_per_rev[NUM_OF_ENCODERS] = { 0, 0 };
 
 /* Timer overflow/underflow interruption */
-void encoder_ofuf(const ENCODER_CHANNEL channel, const FlagStatus is_down) {
+void encoder_ofuf(const ENCODER_CHANNEL channel, const BOOL is_down) {
 	if (is_down) {
 		/* Counter underflow */
 		ofuf_count[channel]--;
@@ -57,7 +57,7 @@ void encoder_set_pulse_per_rev(const ENCODER_CHANNEL channel,
 	}
 }
 
-int32_t encoder_get_count(const ENCODER_CHANNEL channel) {
+static int32_t encoder_get_count(const ENCODER_CHANNEL channel) {
 	switch (channel) {
 	case ENCODER1:
 		return (ofuf_count[ENCODER1] << 16) | __HAL_TIM_GET_COUNTER(&htim2);
