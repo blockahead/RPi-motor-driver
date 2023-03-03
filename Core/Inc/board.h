@@ -18,7 +18,7 @@ typedef enum {
 
 void board_start(void);
 void board_update(void);
-void board_current_feedback(void);
+void board_current_feedback(const MOTOR_CHANNEL channel);
 void board_encoder_overflow_handler(const MOTOR_CHANNEL channel, const BOOL isdown);
 void board_spi_receive_handler(const BOOL issuccess);
 

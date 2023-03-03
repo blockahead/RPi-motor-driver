@@ -18,7 +18,7 @@ typedef struct {
 	float motor_current;
 	float motor_speed;
 	float motor_position;
-	uint8_t control_mode;
+	FBCONTROL_MODE control_mode;
 	float control_target;
 	float motor_supply_voltage;
 	uint32_t motor_encoder_resolution;
@@ -36,43 +36,19 @@ typedef struct {
 } STATE;
 
 static STATE state[NUM_OF_MOTORS];
-static FBCONTROL_PARAM param[NUM_OF_MOTORS];
+static FBCONTROL_PARAM fbparam[NUM_OF_MOTORS];
 
 static void board_state_init(void) {
-	state[MOTOR1].motor_current = 0.0F;
-	state[MOTOR1].motor_speed = 0.0F;
-	state[MOTOR1].motor_position = 0.0F;
-	state[MOTOR1].control_mode = 0;
-	state[MOTOR1].control_target = 0.0F;
 	state[MOTOR1].motor_supply_voltage = 0.0F;
-	state[MOTOR1].motor_encoder_resolution = 0;
 	state[MOTOR1].current_fbparam_Kp = 0.0F;
 	state[MOTOR1].current_fbparam_Ti = 0.0F;
-	state[MOTOR1].speed_fbparam_Kp = 0.0F;
-	state[MOTOR1].speed_fbparam_Ti = 0.0F;
-	state[MOTOR1].position_fbparam_Kp = 0.0F;
-	state[MOTOR1].position_fbparam_Ti = 0.0F;
-	state[MOTOR1].position_fbparam_Td = 0.0F;
-	state[MOTOR1].transmit_data_address = 0;
 	state[MOTOR1].pwm = PWM1;
 	state[MOTOR1].csa = CSA1;
 	state[MOTOR1].encoder = ENCODER1;
 
-	state[MOTOR2].motor_current = 0.0F;
-	state[MOTOR2].motor_speed = 0.0F;
-	state[MOTOR2].motor_position = 0.0F;
-	state[MOTOR2].control_mode = 0;
-	state[MOTOR2].control_target = 0.0F;
 	state[MOTOR2].motor_supply_voltage = 0.0F;
-	state[MOTOR2].motor_encoder_resolution = 0;
 	state[MOTOR2].current_fbparam_Kp = 0.0F;
 	state[MOTOR2].current_fbparam_Ti = 0.0F;
-	state[MOTOR2].speed_fbparam_Kp = 0.0F;
-	state[MOTOR2].speed_fbparam_Ti = 0.0F;
-	state[MOTOR2].position_fbparam_Kp = 0.0F;
-	state[MOTOR2].position_fbparam_Ti = 0.0F;
-	state[MOTOR2].position_fbparam_Td = 0.0F;
-	state[MOTOR2].transmit_data_address = 0;
 	state[MOTOR2].pwm = PWM2;
 	state[MOTOR2].csa = CSA2;
 	state[MOTOR2].encoder = ENCODER2;
@@ -81,7 +57,7 @@ static void board_state_init(void) {
 static void board_convert_spi2state(STATE *state, const SPI_ADDR addr, const SPI_DATA data) {
 	switch (addr) {
 	case SPI_ADDR_CONTROL_MODE:
-		state->control_mode = data.u32;
+		state->control_mode = (FBCONTROL_MODE) data.u32;
 		break;
 
 	case SPI_ADDR_CONTROL_TARGET:
@@ -253,18 +229,22 @@ void board_update(void) {
 	}
 }
 
-void board_current_feedback(void) {
+void board_current_feedback(const MOTOR_CHANNEL channel) {
 	float r, y, u;
 
-	r = 0.0F;
-	y = csa_get_current(state[MOTOR1].csa);
-	u = fbcontrol_pi(r, y, &param[MOTOR1]);
-	pwm_set_voltage(state[MOTOR1].pwm, u);
+	switch (state[channel].control_mode) {
+	case FBCONTROL_MODE_CURRENT:
+	case FBCONTROL_MODE_SPEED:
+	case FBCONTROL_MODE_POSITION:
+		r = 0.0F;
+		y = csa_get_current(state[channel].csa);
+		u = fbcontrol_pi(r, y, &fbparam[channel]);
+		pwm_set_voltage(state[channel].pwm, u);
+		break;
 
-	r = 0.0F;
-	y = csa_get_current(state[MOTOR2].csa);
-	u = fbcontrol_pi(r, y, &param[MOTOR2]);
-	pwm_set_voltage(state[MOTOR2].pwm, u);
+	default:
+		break;
+	}
 }
 
 void board_encoder_overflow_handler(const MOTOR_CHANNEL channel, const BOOL isdown) {
