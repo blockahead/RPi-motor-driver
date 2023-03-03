@@ -267,10 +267,18 @@ void board_current_feedback(void) {
 	pwm_set_voltage(state[MOTOR2].pwm, u);
 }
 
-void board_encoder_overflow(const MOTOR_CHANNEL channel, const BOOL isdown) {
+void board_encoder_overflow_handler(const MOTOR_CHANNEL channel, const BOOL isdown) {
 	if (isdown) {
 		encoder_count_overflow(state[channel].encoder, -1);
 	} else {
 		encoder_count_overflow(state[channel].encoder, 1);
+	}
+}
+
+void board_spi_receive_handler(const BOOL issuccess) {
+	if (issuccess) {
+		spi_receive();
+	} else {
+		spi_error();
 	}
 }
