@@ -8,14 +8,10 @@
 #ifndef INC_UTIL_H_
 #define INC_UTIL_H_
 
-float saturation(const float value, const float min, const float max) {
-	if (value < min) {
-		return min;
-	} else if (max < value) {
-		return max;
-	} else {
-		return value;
-	}
-}
+typedef enum {
+	FALSE = 0U, TRUE
+} BOOL;
+
+float saturation(const float value, const float min, const float max);
 
 #endif /* INC_UTIL_H_ */

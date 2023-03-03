@@ -14,7 +14,11 @@ extern ADC_HandleTypeDef hadc1;
 
 static uint16_t reg[NUM_OF_CSAS];
 
-float csa_get_voltage(const uint8_t channel) {
+uint16_t csa_get_reg(const CSA_CHANNEL channel) {
+	return reg[channel];
+}
+
+static float csa_get_voltage(const CSA_CHANNEL channel) {
 	switch (channel) {
 	case CSA1:
 	case CSA2:
@@ -25,7 +29,7 @@ float csa_get_voltage(const uint8_t channel) {
 	}
 }
 
-float csa_get_current(const uint8_t channel) {
+float csa_get_current(const CSA_CHANNEL channel) {
 	switch (channel) {
 	case CSA1:
 	case CSA2:

@@ -21,12 +21,8 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-#include "state.h"
+#include "board.h"
 #include "callback.h"
-#include "encoder.h"
-#include "pwm.h"
-#include "csa.h"
-#include "spi.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -56,6 +52,7 @@ TIM_HandleTypeDef htim2;
 TIM_HandleTypeDef htim3;
 TIM_HandleTypeDef htim15;
 TIM_HandleTypeDef htim16;
+TIM_HandleTypeDef htim17;
 
 /* USER CODE BEGIN PV */
 
@@ -72,6 +69,7 @@ static void MX_TIM2_Init(void);
 static void MX_TIM3_Init(void);
 static void MX_TIM15_Init(void);
 static void MX_TIM16_Init(void);
+static void MX_TIM17_Init(void);
 /* USER CODE BEGIN PFP */
 
 /* USER CODE END PFP */
@@ -117,39 +115,20 @@ int main(void)
   MX_TIM3_Init();
   MX_TIM15_Init();
   MX_TIM16_Init();
+  MX_TIM17_Init();
   /* USER CODE BEGIN 2 */
 	/* State initialize */
-	extern STATE state[];
-
-	encoder_start();
-	pwm_start();
-	csa_start();
-	spi_start();
+	board_start();
   /* USER CODE END 2 */
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
 	while (1) {
-		/* TEST CODE START */
-		pwm_set_voltage(PWM1, state[MOTOR1].control_target);
-		pwm_set_voltage(PWM2, state[MOTOR2].control_target);
-		/* TEST CODE END */
-
 		/* Updating state */
-		encoder_set_pulse_per_rev(ENCODER1,
-				state[MOTOR1].motor_encoder_resolution);
-		encoder_set_pulse_per_rev(ENCODER2,
-				state[MOTOR2].motor_encoder_resolution);
-		pwm_set_supply_voltage(PWM1, state[MOTOR1].motor_supply_voltage);
-		pwm_set_supply_voltage(PWM2, state[MOTOR2].motor_supply_voltage);
-		state[MOTOR1].motor_current = csa_get_current(CSA1);
-		state[MOTOR2].motor_current = csa_get_current(CSA2);
-		state[MOTOR1].motor_position = encoder_get_angle_rad(ENCODER1);
-		state[MOTOR2].motor_position = encoder_get_angle_rad(ENCODER2);
-		spi_update(state);
+		board_update();
 
 		/* Check main loop execution cycle */
-		HAL_GPIO_TogglePin(TEST_GPIO_Port, TEST_Pin);
+//		HAL_GPIO_TogglePin(TEST_GPIO_Port, TEST_Pin);
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
@@ -588,6 +567,38 @@ static void MX_TIM16_Init(void)
 
   /* USER CODE END TIM16_Init 2 */
   HAL_TIM_MspPostInit(&htim16);
+
+}
+
+/**
+  * @brief TIM17 Initialization Function
+  * @param None
+  * @retval None
+  */
+static void MX_TIM17_Init(void)
+{
+
+  /* USER CODE BEGIN TIM17_Init 0 */
+
+  /* USER CODE END TIM17_Init 0 */
+
+  /* USER CODE BEGIN TIM17_Init 1 */
+
+  /* USER CODE END TIM17_Init 1 */
+  htim17.Instance = TIM17;
+  htim17.Init.Prescaler = 0;
+  htim17.Init.CounterMode = TIM_COUNTERMODE_UP;
+  htim17.Init.Period = 3200-1;
+  htim17.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
+  htim17.Init.RepetitionCounter = 0;
+  htim17.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
+  if (HAL_TIM_Base_Init(&htim17) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  /* USER CODE BEGIN TIM17_Init 2 */
+
+  /* USER CODE END TIM17_Init 2 */
 
 }
 
