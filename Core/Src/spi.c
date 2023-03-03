@@ -63,16 +63,14 @@ BOOL spi_packet_isvalid(void) {
 	}
 }
 
-void spi_get_DW(SPI_ADDR *addr1, SPI_ADDR *addr2, SPI_DATA *wdata1,
-		SPI_DATA *wdata2) {
+void spi_get_DW(SPI_ADDR *addr1, SPI_ADDR *addr2, SPI_DATA *wdata1, SPI_DATA *wdata2) {
 	*addr1 = dw.ADDR1;
 	*addr2 = dw.ADDR2;
 	*wdata1 = dw.WDATA1;
 	*wdata2 = dw.WDATA2;
 }
 
-void spi_set_DR(const uint16_t time, const SPI_DATA rdata1,
-		const SPI_DATA rdata2) {
+void spi_set_DR(const uint16_t time, const SPI_DATA rdata1, const SPI_DATA rdata2) {
 	dr.TIME = time;
 	dr.RDATA1 = rdata1;
 	dr.RDATA2 = rdata2;
@@ -81,7 +79,6 @@ void spi_set_DR(const uint16_t time, const SPI_DATA rdata1,
 void spi_start(void) {
 	hasreceived = FALSE;
 	__HAL_SPI_ENABLE_IT(&hspi1, SPI_IT_ERR);
-	HAL_SPI_TransmitReceive_IT(&hspi1, ((SPI_PACKET*) &dr)->u8,
-			((SPI_PACKET*) &dw)->u8, sizeof(SPI_PACKET));
+	HAL_SPI_TransmitReceive_IT(&hspi1, ((SPI_PACKET*) &dr)->u8, ((SPI_PACKET*) &dw)->u8, sizeof(SPI_PACKET));
 }
 

@@ -9,7 +9,8 @@
 #define INC_UTIL_H_
 
 typedef enum {
-	FALSE = 0U, TRUE
+	FALSE = 0U,
+	TRUE
 } BOOL;
 
 float saturation(const float value, const float min, const float max);

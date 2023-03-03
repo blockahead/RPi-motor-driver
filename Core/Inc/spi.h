@@ -45,10 +45,8 @@ void spi_receive(void);
 void spi_error(void);
 BOOL spi_packet_hasreceived(void);
 BOOL spi_packet_isvalid(void);
-void spi_get_DW(SPI_ADDR *addr1, SPI_ADDR *addr2, SPI_DATA *wdata1,
-		SPI_DATA *wdata2);
-void spi_set_DR(const uint16_t time, const SPI_DATA rdata1,
-		const SPI_DATA rdata2);
+void spi_get_DW(SPI_ADDR *addr1, SPI_ADDR *addr2, SPI_DATA *wdata1, SPI_DATA *wdata2);
+void spi_set_DR(const uint16_t time, const SPI_DATA rdata1, const SPI_DATA rdata2);
 void spi_start(void);
 
 #endif /* INC_SPI_H_ */

@@ -45,17 +45,13 @@ void pwm_set_voltage(const PWM_CHANNEL channel, const float voltage) {
 
 	switch (channel) {
 	case PWM1:
-		target_voltage = saturation(voltage, -supply_voltage[PWM1],
-				supply_voltage[PWM1]);
-		__HAL_TIM_SET_COMPARE(&htim15, TIM_CHANNEL_1,
-				(uint32_t ) ((float) REG_ZERO * (1.0F + target_voltage / supply_voltage[PWM1])));
+		target_voltage = saturation(voltage, -supply_voltage[PWM1], supply_voltage[PWM1]);
+		__HAL_TIM_SET_COMPARE(&htim15, TIM_CHANNEL_1, (uint32_t ) ((float) REG_ZERO * (1.0F + target_voltage / supply_voltage[PWM1])));
 		break;
 
 	case PWM2:
-		target_voltage = saturation(voltage, -supply_voltage[PWM2],
-				supply_voltage[PWM2]);
-		__HAL_TIM_SET_COMPARE(&htim16, TIM_CHANNEL_1,
-				(uint32_t ) ((float) REG_ZERO * (1.0F + target_voltage / supply_voltage[PWM2])));
+		target_voltage = saturation(voltage, -supply_voltage[PWM2], supply_voltage[PWM2]);
+		__HAL_TIM_SET_COMPARE(&htim16, TIM_CHANNEL_1, (uint32_t ) ((float) REG_ZERO * (1.0F + target_voltage / supply_voltage[PWM2])));
 		break;
 
 	default:

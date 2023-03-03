@@ -124,11 +124,15 @@ int main(void)
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
 	while (1) {
+		/* Check main process execution period START */
+		HAL_GPIO_WritePin(PERIOD_MAIN_GPIO_Port, PERIOD_MAIN_Pin, GPIO_PIN_SET);
+
 		/* Updating state */
 		board_update();
 
-		/* Check main loop execution cycle */
-//		HAL_GPIO_TogglePin(TEST_GPIO_Port, TEST_Pin);
+		/* Check main process execution period END */
+		HAL_GPIO_WritePin(PERIOD_MAIN_GPIO_Port, PERIOD_MAIN_Pin,
+				GPIO_PIN_RESET);
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
@@ -632,14 +636,15 @@ static void MX_GPIO_Init(void)
   __HAL_RCC_GPIOB_CLK_ENABLE();
 
   /*Configure GPIO pin Output Level */
-  HAL_GPIO_WritePin(GPIOA, TEST_Pin|PWM1_EN_Pin|PWM2_EN_Pin, GPIO_PIN_RESET);
+  HAL_GPIO_WritePin(GPIOA, TEST_Pin|PERIOD_MAIN_Pin|PERIOD_CURRENT_FB_Pin|PWM1_EN_Pin
+                          |PWM2_EN_Pin, GPIO_PIN_RESET);
 
-  /*Configure GPIO pin : TEST_Pin */
-  GPIO_InitStruct.Pin = TEST_Pin;
+  /*Configure GPIO pins : TEST_Pin PERIOD_MAIN_Pin PERIOD_CURRENT_FB_Pin */
+  GPIO_InitStruct.Pin = TEST_Pin|PERIOD_MAIN_Pin|PERIOD_CURRENT_FB_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
   GPIO_InitStruct.Pull = GPIO_PULLUP;
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
-  HAL_GPIO_Init(TEST_GPIO_Port, &GPIO_InitStruct);
+  HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
 
   /*Configure GPIO pins : PWM1_EN_Pin PWM2_EN_Pin */
   GPIO_InitStruct.Pin = PWM1_EN_Pin|PWM2_EN_Pin;

@@ -16,10 +16,14 @@
 void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim) {
 	if (htim->Instance->CR1 & TIM_CR1_CEN_Msk) {
 		if (htim->Instance == TIM17) {
+			/* Check current feedback execution period START */
+			HAL_GPIO_WritePin(PERIOD_CURRENT_FB_GPIO_Port, PERIOD_CURRENT_FB_Pin, GPIO_PIN_SET);
+
 			/* 100us timer interruption */
-			HAL_GPIO_WritePin(TEST_GPIO_Port, TEST_Pin, GPIO_PIN_SET);
 			board_current_feedback();
-			HAL_GPIO_WritePin(TEST_GPIO_Port, TEST_Pin, GPIO_PIN_RESET);
+
+			/* Check current feedback execution period END */
+			HAL_GPIO_WritePin(PERIOD_CURRENT_FB_GPIO_Port, PERIOD_CURRENT_FB_Pin, GPIO_PIN_RESET);
 		} else if (htim->Instance == TIM2) {
 			/* Encoder1 overflow/underflow */
 			encoder_ofuf(ENCODER1, __HAL_TIM_IS_TIM_COUNTING_DOWN(htim));

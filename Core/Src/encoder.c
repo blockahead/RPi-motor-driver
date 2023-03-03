@@ -44,8 +44,7 @@ void encoder_clear_count(const ENCODER_CHANNEL channel) {
 	}
 }
 
-void encoder_set_pulse_per_rev(const ENCODER_CHANNEL channel,
-		const uint16_t ppr) {
+void encoder_set_pulse_per_rev(const ENCODER_CHANNEL channel, const uint16_t ppr) {
 	switch (channel) {
 	case ENCODER1:
 	case ENCODER2:
@@ -74,8 +73,7 @@ float encoder_get_angle_rad(const ENCODER_CHANNEL channel) {
 	switch (channel) {
 	case ENCODER1:
 	case ENCODER2:
-		return TWOPI * (float) encoder_get_count(channel)
-				/ (float) pulse_per_rev[channel];
+		return TWOPI * (float) encoder_get_count(channel) / (float) pulse_per_rev[channel];
 
 	default:
 		return 0.0F;

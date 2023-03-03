@@ -11,7 +11,9 @@
 #include "stm32f3xx_hal.h"
 
 typedef enum {
-	CSA1, CSA2, NUM_OF_CSAS
+	CSA1,
+	CSA2,
+	NUM_OF_CSAS
 } CSA_CHANNEL;
 
 uint16_t csa_get_reg(const CSA_CHANNEL channel);

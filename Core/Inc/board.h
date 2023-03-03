@@ -9,7 +9,9 @@
 #define INC_BOARD_H_
 
 typedef enum {
-	MOTOR1, MOTOR2, NUM_OF_MOTORS
+	MOTOR1,
+	MOTOR2,
+	NUM_OF_MOTORS
 } MOTOR_CHANNEL;
 
 void board_start(void);

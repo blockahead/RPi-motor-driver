@@ -11,7 +11,9 @@
 #include "stm32f3xx_hal.h"
 
 typedef enum {
-	PWM1, PWM2, NUM_OF_PWMS
+	PWM1,
+	PWM2,
+	NUM_OF_PWMS
 } PWM_CHANNEL;
 
 void pwm_set_supply_voltage(const PWM_CHANNEL channel, const float voltage);

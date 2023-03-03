@@ -79,6 +79,10 @@ void Error_Handler(void);
 #define ADC1_GPIO_Port GPIOB
 #define ADC2_Pin GPIO_PIN_1
 #define ADC2_GPIO_Port GPIOB
+#define PERIOD_MAIN_Pin GPIO_PIN_8
+#define PERIOD_MAIN_GPIO_Port GPIOA
+#define PERIOD_CURRENT_FB_Pin GPIO_PIN_9
+#define PERIOD_CURRENT_FB_GPIO_Port GPIOA
 #define PWM1_EN_Pin GPIO_PIN_10
 #define PWM1_EN_GPIO_Port GPIOA
 #define PWM2_EN_Pin GPIO_PIN_11

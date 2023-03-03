@@ -78,8 +78,7 @@ static void board_state_init(void) {
 	state[MOTOR2].encoder = ENCODER2;
 }
 
-static void board_convert_spi2state(STATE *state, const SPI_ADDR addr,
-		const SPI_DATA data) {
+static void board_convert_spi2state(STATE *state, const SPI_ADDR addr, const SPI_DATA data) {
 	switch (addr) {
 	case SPI_ADDR_CONTROL_MODE:
 		state->control_mode = data.u32;
