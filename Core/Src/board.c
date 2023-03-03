@@ -191,12 +191,6 @@ void board_start(void) {
 }
 
 void board_update(void) {
-	/* State to peripheral */
-	encoder_set_pulse_per_rev(ENCODER1, state[MOTOR1].motor_encoder_resolution);
-	encoder_set_pulse_per_rev(ENCODER2, state[MOTOR2].motor_encoder_resolution);
-	pwm_set_supply_voltage(PWM1, state[MOTOR1].motor_supply_voltage);
-	pwm_set_supply_voltage(PWM2, state[MOTOR2].motor_supply_voltage);
-
 	/* Peripheral to state */
 	state[MOTOR1].motor_current = csa_get_current(CSA1);
 	state[MOTOR2].motor_current = csa_get_current(CSA2);
@@ -226,6 +220,19 @@ void board_update(void) {
 		spi_start();
 	} else {
 		/* Do nothing */
+	}
+
+	/* State to peripheral */
+	encoder_set_pulse_per_rev(ENCODER1, state[MOTOR1].motor_encoder_resolution);
+	encoder_set_pulse_per_rev(ENCODER2, state[MOTOR2].motor_encoder_resolution);
+	pwm_set_supply_voltage(PWM1, state[MOTOR1].motor_supply_voltage);
+	pwm_set_supply_voltage(PWM2, state[MOTOR2].motor_supply_voltage);
+
+	/* State to controller */
+	fbparam[MOTOR1].Ts = 100e-6F;
+	fbparam[MOTOR1].Kp = state[MOTOR1].current_fbparam_Kp;
+	if (isnonzero(state[MOTOR1].current_fbparam_Ti)) {
+		fbparam[MOTOR1].Ki = state[MOTOR1].current_fbparam_Kp / state[MOTOR1].current_fbparam_Ti;
 	}
 }
 
