@@ -24,8 +24,8 @@
 | 16 | VSS | - | GND |
 |||||
 | 17 | VDD | - | +3.3V |
-| 18 | PA8 | - | NC |
-| 19 | PA9 | - | NC |
+| 18 | PA8 | GPIO_OUT | Test pin to check main process execution period |
+| 19 | PA9 | GPIO_OUT | Test pin to check current feedback execution period |
 | 20 | PA10 | GPIO_OUT | Motor 1 driver HEN, pull-down (10kOhm) |
 | 21 | PA11 | GPIO_OUT | Motor 2 driver HEN, pull-down (10kOhm) |
 | 22 | PA12 | TIM16_CH1 | Motor 2 driver IN+ |
