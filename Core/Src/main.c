@@ -21,12 +21,8 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-#include "state.h"
+#include "board.h"
 #include "callback.h"
-#include "encoder.h"
-#include "pwm.h"
-#include "csa.h"
-#include "spi.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -122,35 +118,14 @@ int main(void)
   MX_TIM17_Init();
   /* USER CODE BEGIN 2 */
 	/* State initialize */
-	extern STATE state[];
-
-	current_feedback_start();
-	encoder_start();
-	pwm_start();
-	csa_start();
-	spi_start();
+	board_start();
   /* USER CODE END 2 */
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
 	while (1) {
-		/* TEST CODE START */
-		pwm_set_voltage(PWM1, state[MOTOR1].control_target);
-		pwm_set_voltage(PWM2, state[MOTOR2].control_target);
-		/* TEST CODE END */
-
 		/* Updating state */
-		encoder_set_pulse_per_rev(ENCODER1,
-				state[MOTOR1].motor_encoder_resolution);
-		encoder_set_pulse_per_rev(ENCODER2,
-				state[MOTOR2].motor_encoder_resolution);
-		pwm_set_supply_voltage(PWM1, state[MOTOR1].motor_supply_voltage);
-		pwm_set_supply_voltage(PWM2, state[MOTOR2].motor_supply_voltage);
-		state[MOTOR1].motor_current = csa_get_current(CSA1);
-		state[MOTOR2].motor_current = csa_get_current(CSA2);
-		state[MOTOR1].motor_position = encoder_get_angle_rad(ENCODER1);
-		state[MOTOR2].motor_position = encoder_get_angle_rad(ENCODER2);
-		spi_update(state);
+		board_update();
 
 		/* Check main loop execution cycle */
 //		HAL_GPIO_TogglePin(TEST_GPIO_Port, TEST_Pin);

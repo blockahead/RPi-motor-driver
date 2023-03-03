@@ -8,8 +8,16 @@
 #ifndef INC_FBCONTROL_H_
 #define INC_FBCONTROL_H_
 
-#include "state.h"
+typedef struct {
+	float Ts;
+	float Kp;
+	float Ki;
+	float Kd;
+	float ei;
+	float y_pre;
+} FBCONTROL_PARAM;
 
-float fbcontrol_update(const STATE state[]);
+float fbcontrol_pi(const float r, const float y, FBCONTROL_PARAM *param);
+float fbcontrol_pid(const float r, const float y, FBCONTROL_PARAM *param);
 
 #endif /* INC_FBCONTROL_H_ */

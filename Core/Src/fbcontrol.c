@@ -7,48 +7,19 @@
 
 #include "fbcontrol.h"
 
-typedef struct {
-	float Ts;
-	float Kp;
-	float Ki;
-	float Kd;
-	float ei;
-	float x_pre;
-} FBCONTROL_PARAM;
+float fbcontrol_pi(const float r, const float y, FBCONTROL_PARAM *param) {
+	float e = r - y;
+	param->ei += e * param->Ts;
 
-typedef enum {
-	FBTYPE_CURRENT, FBTYPE_SPEED, FBTYPE_POSITION, NUM_OF_FBTYPES,
-} FBTYPE;
+	return param->Kp * e + param->Ki * param->ei;
+}
 
-static FBCONTROL_PARAM fbc[NUM_OF_FBTYPES][NUM_OF_MOTORS];
-
-static float fbcontrol_pid(const float r, const float x, FBCONTROL_PARAM *param) {
-	float e = r - x;
-	float xd = (param->x_pre - x) / param->Ts;
+float fbcontrol_pid(const float r, const float y, FBCONTROL_PARAM *param) {
+	float e = r - y;
+	float dydt = (param->y_pre - y) / param->Ts;
 
 	param->ei += e * param->Ts;
-	param->x_pre = x;
+	param->y_pre = y;
 
-	return param->Kp * e + param->Ki * param->ei + param->Kd * xd;
-}
-
-void fbcontrol_start(void) {
-	for (uint8_t i = 0; i < NUM_OF_FBTYPES; i++) {
-		for (uint8_t j = 0; j < NUM_OF_MOTORS; j++) {
-			fbc[i][j].Ts = 1.0F;
-			fbc[i][j].Kp = 0.0F;
-			fbc[i][j].Ki = 0.0F;
-			fbc[i][j].Kd = 0.0F;
-			fbc[i][j].ei = 0.0F;
-			fbc[i][j].x_pre = 0.0F;
-		}
-	}
-}
-
-float fbcontrol_update(const STATE state[]) {
-	float control_input = 0.0F;
-
-	fbcontrol_current();
-
-	return 0.0F;
+	return param->Kp * e + param->Ki * param->ei + param->Kd * dydt;
 }
