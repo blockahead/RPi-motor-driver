@@ -9,7 +9,6 @@
 #define INC_CALLBACK_H_
 
 #include "board.h"
-#include "encoder.h"
 #include "spi.h"
 
 /* Timer overflow/underflow interruption */
@@ -25,11 +24,11 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim) {
 			/* Check current feedback execution period END */
 			HAL_GPIO_WritePin(PERIOD_CURRENT_FB_GPIO_Port, PERIOD_CURRENT_FB_Pin, GPIO_PIN_RESET);
 		} else if (htim->Instance == TIM2) {
-			/* Encoder1 overflow/underflow */
-			encoder_ofuf(ENCODER1, __HAL_TIM_IS_TIM_COUNTING_DOWN(htim));
+			/* Motor1 encoder overflow */
+			board_encoder_overflow(MOTOR1, __HAL_TIM_IS_TIM_COUNTING_DOWN(htim));
 		} else if (htim->Instance == TIM3) {
-			/* Encoder1 overflow/underflow */
-			encoder_ofuf(ENCODER2, __HAL_TIM_IS_TIM_COUNTING_DOWN(htim));
+			/* Motor2 encoder overflow */
+			board_encoder_overflow(MOTOR2, __HAL_TIM_IS_TIM_COUNTING_DOWN(htim));
 		}
 	}
 }

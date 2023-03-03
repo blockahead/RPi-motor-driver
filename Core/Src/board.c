@@ -258,11 +258,19 @@ void board_current_feedback(void) {
 
 	r = 0.0F;
 	y = csa_get_current(state[MOTOR1].csa);
-	u = fbcontrol_pi(r, y, param);
+	u = fbcontrol_pi(r, y, &param[MOTOR1]);
 	pwm_set_voltage(state[MOTOR1].pwm, u);
 
 	r = 0.0F;
 	y = csa_get_current(state[MOTOR2].csa);
-	u = fbcontrol_pi(r, y, param);
+	u = fbcontrol_pi(r, y, &param[MOTOR2]);
 	pwm_set_voltage(state[MOTOR2].pwm, u);
+}
+
+void board_encoder_overflow(const MOTOR_CHANNEL channel, const BOOL isdown) {
+	if (isdown) {
+		encoder_count_overflow(state[channel].encoder, -1);
+	} else {
+		encoder_count_overflow(state[channel].encoder, 1);
+	}
 }
