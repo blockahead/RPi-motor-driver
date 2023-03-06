@@ -11,7 +11,7 @@
 #include "stm32f3xx_hal.h"
 
 typedef enum {
-	ENCODER1,
+	ENCODER1 = 0U,
 	ENCODER2,
 	NUM_OF_ENCODERS
 } ENCODER_CHANNEL;

@@ -14,100 +14,101 @@
 #include "spi.h"
 #include "fbcontrol.h"
 
+typedef enum {
+	BOARD_CONTROL_MODE_DISABLE = 0U,
+	BOARD_CONTROL_MODE_VOLTAGE,
+	BOARD_CONTROL_MODE_CURRENT,
+	BOARD_CONTROL_MODE_SPEED,
+	BOARD_CONTROL_MODE_POSITION,
+} BOARD_CONTROL_MODE;
+
+typedef struct {
+	PWM_CHANNEL pwm;
+	CSA_CHANNEL csa;
+	ENCODER_CHANNEL encoder;
+} BOARD_PERIPHERAL_CHANNEL;
+
 typedef struct {
 	float motor_current;
 	float motor_speed;
 	float motor_position;
-	FBCONTROL_MODE control_mode;
+	BOARD_CONTROL_MODE control_mode;
 	float control_target;
 	float motor_supply_voltage;
 	uint32_t motor_encoder_resolution;
-	float current_fbparam_Kp;
-	float current_fbparam_Ti;
-	float speed_fbparam_Kp;
-	float speed_fbparam_Ti;
-	float position_fbparam_Kp;
-	float position_fbparam_Ti;
-	float position_fbparam_Td;
+	FBCONTROL_PARAM fbparam[NUM_OF_CONTROL_TYPES];
 	SPI_ADDR transmit_data_address;
-} STATE;
+	BOARD_PERIPHERAL_CHANNEL periph;
+} BOARD_STATE;
 
-typedef struct {
-	STATE state;
-	PWM_CHANNEL pwm;
-	CSA_CHANNEL csa;
-	ENCODER_CHANNEL encoder;
-	FBCONTROL_PARAM fbparam_current;
-	FBCONTROL_PARAM fbparam_speed;
-	FBCONTROL_PARAM fbparam_position;
-} MOTOR;
-
-static MOTOR motor[NUM_OF_MOTORS];
+static BOARD_STATE state[NUM_OF_MOTORS];
 
 static void board_state_init(void) {
-	motor[MOTOR1].state.motor_supply_voltage = 0.0F;
-	motor[MOTOR1].state.current_fbparam_Kp = 0.0F;
-	motor[MOTOR1].state.current_fbparam_Ti = 0.0F;
-	motor[MOTOR1].pwm = PWM1;
-	motor[MOTOR1].csa = CSA1;
-	motor[MOTOR1].encoder = ENCODER1;
+	state[MOTOR1].motor_supply_voltage = 0.0F;
+	state[MOTOR1].fbparam[CURRENT].fbgain.Kp = 0.0F;
+	state[MOTOR1].fbparam[CURRENT].fbgain.Ki = 0.0F;
+	state[MOTOR1].periph.pwm = PWM1;
+	state[MOTOR1].periph.csa = CSA1;
+	state[MOTOR1].periph.encoder = ENCODER1;
+	state[MOTOR1].fbparam[CURRENT].fbstate.Ts = 100.0e-6F;
 
-	motor[MOTOR2].state.motor_supply_voltage = 0.0F;
-	motor[MOTOR2].state.current_fbparam_Kp = 0.0F;
-	motor[MOTOR2].state.current_fbparam_Ti = 0.0F;
-	motor[MOTOR2].pwm = PWM2;
-	motor[MOTOR2].csa = CSA2;
-	motor[MOTOR2].encoder = ENCODER2;
+	state[MOTOR2].motor_supply_voltage = 0.0F;
+	state[MOTOR2].fbparam[CURRENT].fbgain.Kp = 0.0F;
+	state[MOTOR2].fbparam[CURRENT].fbgain.Ki = 0.0F;
+	state[MOTOR2].periph.pwm = PWM2;
+	state[MOTOR2].periph.csa = CSA2;
+	state[MOTOR2].periph.encoder = ENCODER2;
+	state[MOTOR2].fbparam[CURRENT].fbstate.Ts = 100.0e-6F;
 }
 
-static void board_convert_spi2state(STATE *state, const SPI_ADDR addr, const SPI_DATA data) {
+static void board_convert_spi2state(BOARD_STATE *s, const SPI_ADDR addr, const SPI_DATA data) {
 	switch (addr) {
 	case SPI_ADDR_CONTROL_MODE:
-		state->control_mode = (FBCONTROL_MODE) data.u32;
+		s->control_mode = (BOARD_CONTROL_MODE) data.u32;
 		break;
 
 	case SPI_ADDR_CONTROL_TARGET:
-		state->control_target = data.f32;
+		s->control_target = data.f32;
 		break;
 
 	case SPI_ADDR_MOTOR_SUPPLY_VOLTAGE:
-		state->motor_supply_voltage = data.f32;
+		s->motor_supply_voltage = data.f32;
 		break;
 
 	case SPI_ADDR_MOTOR_ENCODER_RESOLUTION:
-		state->motor_encoder_resolution = data.u32;
+		s->motor_encoder_resolution = data.u32;
 		break;
 
 	case SPI_ADDR_CURRENT_FB_KP:
-		state->current_fbparam_Kp = data.f32;
+		s->fbparam[CURRENT].fbgain.Kp = data.f32;
 		break;
 
 	case SPI_ADDR_CURRENT_FB_TI:
-		state->current_fbparam_Ti = data.f32;
+		s->fbparam[CURRENT].fbgain.Ki = data.f32;
 		break;
 
 	case SPI_ADDR_SPEED_FB_KP:
-		state->speed_fbparam_Kp = data.f32;
+		s->fbparam[SPEED].fbgain.Kp = data.f32;
 		break;
 
 	case SPI_ADDR_SPEED_FB_TI:
-		state->speed_fbparam_Ti = data.f32;
+		s->fbparam[SPEED].fbgain.Ki = data.f32;
 		break;
 
 	case SPI_ADDR_POSITION_FB_KP:
-		state->position_fbparam_Kp = data.f32;
+		s->fbparam[POSITION].fbgain.Kp = data.f32;
 		break;
 
 	case SPI_ADDR_POSITION_FB_TI:
-		state->position_fbparam_Ti = data.f32;
+		s->fbparam[POSITION].fbgain.Ki = data.f32;
 		break;
 
 	case SPI_ADDR_POSITION_FB_TD:
-		state->position_fbparam_Td = data.f32;
+		s->fbparam[POSITION].fbgain.Kd = data.f32;
 		break;
 
 	case SPI_ADDR_RDATA_ADDRESS:
-		state->transmit_data_address = (SPI_ADDR) data.u32;
+		s->transmit_data_address = (SPI_ADDR) data.u32;
 		break;
 
 	default:
@@ -116,7 +117,7 @@ static void board_convert_spi2state(STATE *state, const SPI_ADDR addr, const SPI
 	}
 }
 
-static void board_convert_state2spi(SPI_DATA *data, const STATE *s) {
+static void board_convert_state2spi(SPI_DATA *data, const BOARD_STATE *s) {
 	switch (s->transmit_data_address) {
 	case SPI_ADDR_MOTOR_CURRENT:
 		data->f32 = s->motor_current;
@@ -147,31 +148,31 @@ static void board_convert_state2spi(SPI_DATA *data, const STATE *s) {
 		break;
 
 	case SPI_ADDR_CURRENT_FB_KP:
-		data->f32 = s->current_fbparam_Kp;
+		data->f32 = s->fbparam[CURRENT].fbgain.Kp;
 		break;
 
 	case SPI_ADDR_CURRENT_FB_TI:
-		data->f32 = s->current_fbparam_Ti;
+		data->f32 = s->fbparam[CURRENT].fbgain.Ki;
 		break;
 
 	case SPI_ADDR_SPEED_FB_KP:
-		data->f32 = s->speed_fbparam_Kp;
+		data->f32 = s->fbparam[SPEED].fbgain.Kp;
 		break;
 
 	case SPI_ADDR_SPEED_FB_TI:
-		data->f32 = s->speed_fbparam_Ti;
+		data->f32 = s->fbparam[SPEED].fbgain.Ki;
 		break;
 
 	case SPI_ADDR_POSITION_FB_KP:
-		data->f32 = s->position_fbparam_Kp;
+		data->f32 = s->fbparam[POSITION].fbgain.Kp;
 		break;
 
 	case SPI_ADDR_POSITION_FB_TI:
-		data->f32 = s->position_fbparam_Ti;
+		data->f32 = s->fbparam[POSITION].fbgain.Ki;
 		break;
 
 	case SPI_ADDR_POSITION_FB_TD:
-		data->f32 = s->position_fbparam_Td;
+		data->f32 = s->fbparam[POSITION].fbgain.Kd;
 		break;
 
 	case SPI_ADDR_RDATA_ADDRESS:
@@ -198,10 +199,10 @@ void board_start(void) {
 
 void board_update(void) {
 	/* Peripheral to state */
-	motor[MOTOR1].state.motor_current = csa_get_current(CSA1);
-	motor[MOTOR2].state.motor_current = csa_get_current(CSA2);
-	motor[MOTOR1].state.motor_position = encoder_get_angle_rad(ENCODER1);
-	motor[MOTOR2].state.motor_position = encoder_get_angle_rad(ENCODER2);
+	state[MOTOR1].motor_current = csa_get_current(state[MOTOR1].periph.csa);
+	state[MOTOR2].motor_current = csa_get_current(state[MOTOR2].periph.csa);
+	state[MOTOR1].motor_position = encoder_get_angle_rad(state[MOTOR1].periph.encoder);
+	state[MOTOR2].motor_position = encoder_get_angle_rad(state[MOTOR2].periph.encoder);
 
 	/* Analyze and send SPI packet */
 	if (spi_packet_hasreceived()) {
@@ -211,15 +212,15 @@ void board_update(void) {
 		if (spi_packet_isvalid()) {
 			/* Update state if received data is valid */
 			spi_get_DW(&addr1, &addr2, &data1, &data2);
-			board_convert_spi2state(&motor[MOTOR1].state, addr1, data1);
-			board_convert_spi2state(&motor[MOTOR2].state, addr2, data2);
+			board_convert_spi2state(&state[MOTOR1], addr1, data1);
+			board_convert_spi2state(&state[MOTOR2], addr2, data2);
 		} else {
 			/* Do nothing */
 		}
 
 		/* Set current state into transmit buffer */
-		board_convert_state2spi(&data1, &motor[MOTOR1].state);
-		board_convert_state2spi(&data2, &motor[MOTOR2].state);
+		board_convert_state2spi(&data1, &state[MOTOR1]);
+		board_convert_state2spi(&data2, &state[MOTOR2]);
 		spi_set_DR((uint16_t) 0, data1, data2);
 
 		/* Restart receiving data */
@@ -229,30 +230,23 @@ void board_update(void) {
 	}
 
 	/* State to peripheral */
-	encoder_set_pulse_per_rev(ENCODER1, motor[MOTOR1].state.motor_encoder_resolution);
-	encoder_set_pulse_per_rev(ENCODER2, motor[MOTOR2].state.motor_encoder_resolution);
-	pwm_set_supply_voltage(PWM1, motor[MOTOR1].state.motor_supply_voltage);
-	pwm_set_supply_voltage(PWM2, motor[MOTOR2].state.motor_supply_voltage);
-
-	/* State to controller */
-	motor[MOTOR1].fbparam_current.Ts = 100e-6F;
-	motor[MOTOR1].fbparam_current.Kp = motor[MOTOR1].state.current_fbparam_Kp;
-	if (util_isnonzero(motor[MOTOR1].state.current_fbparam_Ti)) {
-		motor[MOTOR1].fbparam_current.Ki = motor[MOTOR1].state.current_fbparam_Kp / motor[MOTOR1].state.current_fbparam_Ti;
-	}
+	encoder_set_pulse_per_rev(state[MOTOR1].periph.encoder, state[MOTOR1].motor_encoder_resolution);
+	encoder_set_pulse_per_rev(state[MOTOR2].periph.encoder, state[MOTOR2].motor_encoder_resolution);
+	pwm_set_supply_voltage(state[MOTOR1].periph.pwm, state[MOTOR1].motor_supply_voltage);
+	pwm_set_supply_voltage(state[MOTOR2].periph.pwm, state[MOTOR2].motor_supply_voltage);
 }
 
 void board_current_feedback(const MOTOR_CHANNEL channel) {
 	float r, y, u;
 
-	switch (motor[channel].state.control_mode) {
-	case FBCONTROL_MODE_CURRENT:
-	case FBCONTROL_MODE_SPEED:
-	case FBCONTROL_MODE_POSITION:
+	switch (state[channel].control_mode) {
+	case BOARD_CONTROL_MODE_CURRENT:
+	case BOARD_CONTROL_MODE_SPEED:
+	case BOARD_CONTROL_MODE_POSITION:
 		r = 0.0F;
-		y = csa_get_current(motor[channel].csa);
-		u = fbcontrol_pi(r, y, &motor[channel].fbparam_current);
-		pwm_set_voltage(motor[channel].pwm, u);
+		y = csa_get_current(state[channel].periph.csa);
+		u = fbcontrol_pi(r, y, &state[channel].fbparam[CURRENT]);
+		pwm_set_voltage(state[channel].periph.pwm, u);
 		break;
 
 	default:
@@ -262,9 +256,9 @@ void board_current_feedback(const MOTOR_CHANNEL channel) {
 
 void board_encoder_overflow_handler(const MOTOR_CHANNEL channel, const BOOL isdown) {
 	if (isdown) {
-		encoder_count_overflow(motor[channel].encoder, -1);
+		encoder_count_overflow(state[channel].periph.encoder, -1);
 	} else {
-		encoder_count_overflow(motor[channel].encoder, 1);
+		encoder_count_overflow(state[channel].periph.encoder, 1);
 	}
 }
 

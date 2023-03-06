@@ -11,7 +11,7 @@
 #include "stm32f3xx_hal.h"
 
 typedef enum {
-	PWM1,
+	PWM1 = 0U,
 	PWM2,
 	NUM_OF_PWMS
 } PWM_CHANNEL;

@@ -9,20 +9,27 @@
 #define INC_FBCONTROL_H_
 
 typedef enum {
-	FBCONTROL_MODE_DISABLE,
-	FBCONTROL_MODE_VOLTAGE,
-	FBCONTROL_MODE_CURRENT,
-	FBCONTROL_MODE_SPEED,
-	FBCONTROL_MODE_POSITION,
-} FBCONTROL_MODE;
+	CURRENT = 0U,
+	SPEED,
+	POSITION,
+	NUM_OF_CONTROL_TYPES,
+} FBCONTROL_TYPES;
 
 typedef struct {
-	float Ts;
 	float Kp;
 	float Ki;
 	float Kd;
+} FBCONTROL_GAIN;
+
+typedef struct {
+	float Ts;
 	float ei;
 	float y_pre;
+} FBCONTROL_STATE;
+
+typedef struct {
+	FBCONTROL_GAIN fbgain;
+	FBCONTROL_STATE fbstate;
 } FBCONTROL_PARAM;
 
 float fbcontrol_pi(const float r, const float y, FBCONTROL_PARAM *param);

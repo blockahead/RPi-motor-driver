@@ -60,13 +60,13 @@
 | 0 | 1 | 0 | 1 | Control target |
 | 0 | 1 | 1 | 0 | Motor supply voltage |
 | 0 | 1 | 1 | 1 | Motor encoder resolution |
-| 1 | 0 | 0 | 0 | Current feedback parameter Kp |
-| 1 | 0 | 0 | 1 | Current feedback parameter Ti |
-| 1 | 0 | 1 | 0 | Speed feedback parameter Kp |
-| 1 | 0 | 1 | 1 | Speed feedback parameter Ti |
-| 1 | 1 | 0 | 0 | Position feedback parameter Kp |
-| 1 | 1 | 0 | 1 | Position feedback parameter Ti |
-| 1 | 1 | 1 | 0 | Position feedback parameter Td |
+| 1 | 0 | 0 | 0 | Current feedback gain Kp |
+| 1 | 0 | 0 | 1 | Current feedback gain Ki |
+| 1 | 0 | 1 | 0 | Speed feedback gain Kp |
+| 1 | 0 | 1 | 1 | Speed feedback gain Ki |
+| 1 | 1 | 0 | 0 | Position feedback gain Kp |
+| 1 | 1 | 0 | 1 | Position feedback gain Ki |
+| 1 | 1 | 1 | 0 | Position feedback gain Kd |
 | 1 | 1 | 1 | 1 | Transmit data address |
 
 ### Data (WDATA, RDATA)
@@ -130,7 +130,7 @@
 ADDR = 0b1000 - 0b1110
 | Bit | Description |
 | - | - |
-| DATA31-DATA0 | Feedback parameter as 32bit float |
+| DATA31-DATA0 | Feedback gain as 32bit float |
 
 #### Transmit data address
 
