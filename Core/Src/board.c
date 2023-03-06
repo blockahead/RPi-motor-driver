@@ -199,10 +199,10 @@ void board_start(void) {
 
 void board_update(void) {
 	/* Peripheral to state */
-	state[MOTOR1].motor_current = csa_get_current(state[MOTOR1].periph.csa);
-	state[MOTOR2].motor_current = csa_get_current(state[MOTOR2].periph.csa);
-	state[MOTOR1].motor_position = encoder_get_angle_rad(state[MOTOR1].periph.encoder);
-	state[MOTOR2].motor_position = encoder_get_angle_rad(state[MOTOR2].periph.encoder);
+	for (uint8_t i = 0; i < NUM_OF_MOTORS; i++) {
+		state[i].motor_current = csa_get_current(state[i].periph.csa);
+		state[i].motor_position = encoder_get_angle_rad(state[i].periph.encoder);
+	}
 
 	/* Analyze and send SPI packet */
 	if (spi_packet_hasreceived()) {
@@ -230,10 +230,10 @@ void board_update(void) {
 	}
 
 	/* State to peripheral */
-	encoder_set_pulse_per_rev(state[MOTOR1].periph.encoder, state[MOTOR1].motor_encoder_resolution);
-	encoder_set_pulse_per_rev(state[MOTOR2].periph.encoder, state[MOTOR2].motor_encoder_resolution);
-	pwm_set_supply_voltage(state[MOTOR1].periph.pwm, state[MOTOR1].motor_supply_voltage);
-	pwm_set_supply_voltage(state[MOTOR2].periph.pwm, state[MOTOR2].motor_supply_voltage);
+	for (uint8_t i = 0; i < NUM_OF_MOTORS; i++) {
+		encoder_set_pulse_per_rev(state[i].periph.encoder, state[i].motor_encoder_resolution);
+		pwm_set_supply_voltage(state[i].periph.pwm, state[i].motor_supply_voltage);
+	}
 }
 
 void board_current_feedback(const MOTOR_CHANNEL channel) {
