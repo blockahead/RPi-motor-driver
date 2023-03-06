@@ -7,6 +7,10 @@
 
 #include "util.h"
 
+#include "math.h"
+
+#define EPS (1.0e-6F)
+
 float saturation(const float value, const float min, const float max) {
 	if (value < min) {
 		return min;
@@ -15,4 +19,8 @@ float saturation(const float value, const float min, const float max) {
 	} else {
 		return value;
 	}
+}
+
+BOOL isnonzero(const float value) {
+	return (EPS < fabsf(value)) ? (TRUE) : (FALSE);
 }

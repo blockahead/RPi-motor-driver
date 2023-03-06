@@ -14,5 +14,6 @@ typedef enum {
 } BOOL;
 
 float saturation(const float value, const float min, const float max);
+BOOL util_isnonzero(const float value);
 
 #endif /* INC_UTIL_H_ */
