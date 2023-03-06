@@ -30,28 +30,34 @@ typedef struct {
 	float position_fbparam_Ti;
 	float position_fbparam_Td;
 	SPI_ADDR transmit_data_address;
+} STATE;
+
+typedef struct {
+	STATE state;
 	PWM_CHANNEL pwm;
 	CSA_CHANNEL csa;
 	ENCODER_CHANNEL encoder;
-} STATE;
+	FBCONTROL_PARAM fbparam_current;
+	FBCONTROL_PARAM fbparam_speed;
+	FBCONTROL_PARAM fbparam_position;
+} MOTOR;
 
-static STATE state[NUM_OF_MOTORS];
-static FBCONTROL_PARAM fbparam[NUM_OF_MOTORS];
+static MOTOR motor[NUM_OF_MOTORS];
 
 static void board_state_init(void) {
-	state[MOTOR1].motor_supply_voltage = 0.0F;
-	state[MOTOR1].current_fbparam_Kp = 0.0F;
-	state[MOTOR1].current_fbparam_Ti = 0.0F;
-	state[MOTOR1].pwm = PWM1;
-	state[MOTOR1].csa = CSA1;
-	state[MOTOR1].encoder = ENCODER1;
+	motor[MOTOR1].state.motor_supply_voltage = 0.0F;
+	motor[MOTOR1].state.current_fbparam_Kp = 0.0F;
+	motor[MOTOR1].state.current_fbparam_Ti = 0.0F;
+	motor[MOTOR1].pwm = PWM1;
+	motor[MOTOR1].csa = CSA1;
+	motor[MOTOR1].encoder = ENCODER1;
 
-	state[MOTOR2].motor_supply_voltage = 0.0F;
-	state[MOTOR2].current_fbparam_Kp = 0.0F;
-	state[MOTOR2].current_fbparam_Ti = 0.0F;
-	state[MOTOR2].pwm = PWM2;
-	state[MOTOR2].csa = CSA2;
-	state[MOTOR2].encoder = ENCODER2;
+	motor[MOTOR2].state.motor_supply_voltage = 0.0F;
+	motor[MOTOR2].state.current_fbparam_Kp = 0.0F;
+	motor[MOTOR2].state.current_fbparam_Ti = 0.0F;
+	motor[MOTOR2].pwm = PWM2;
+	motor[MOTOR2].csa = CSA2;
+	motor[MOTOR2].encoder = ENCODER2;
 }
 
 static void board_convert_spi2state(STATE *state, const SPI_ADDR addr, const SPI_DATA data) {
@@ -192,10 +198,10 @@ void board_start(void) {
 
 void board_update(void) {
 	/* Peripheral to state */
-	state[MOTOR1].motor_current = csa_get_current(CSA1);
-	state[MOTOR2].motor_current = csa_get_current(CSA2);
-	state[MOTOR1].motor_position = encoder_get_angle_rad(ENCODER1);
-	state[MOTOR2].motor_position = encoder_get_angle_rad(ENCODER2);
+	motor[MOTOR1].state.motor_current = csa_get_current(CSA1);
+	motor[MOTOR2].state.motor_current = csa_get_current(CSA2);
+	motor[MOTOR1].state.motor_position = encoder_get_angle_rad(ENCODER1);
+	motor[MOTOR2].state.motor_position = encoder_get_angle_rad(ENCODER2);
 
 	/* Analyze and send SPI packet */
 	if (spi_packet_hasreceived()) {
@@ -205,15 +211,15 @@ void board_update(void) {
 		if (spi_packet_isvalid()) {
 			/* Update state if received data is valid */
 			spi_get_DW(&addr1, &addr2, &data1, &data2);
-			board_convert_spi2state(&state[MOTOR1], addr1, data1);
-			board_convert_spi2state(&state[MOTOR2], addr2, data2);
+			board_convert_spi2state(&motor[MOTOR1].state, addr1, data1);
+			board_convert_spi2state(&motor[MOTOR2].state, addr2, data2);
 		} else {
 			/* Do nothing */
 		}
 
 		/* Set current state into transmit buffer */
-		board_convert_state2spi(&data1, &state[MOTOR1]);
-		board_convert_state2spi(&data2, &state[MOTOR2]);
+		board_convert_state2spi(&data1, &motor[MOTOR1].state);
+		board_convert_state2spi(&data2, &motor[MOTOR2].state);
 		spi_set_DR((uint16_t) 0, data1, data2);
 
 		/* Restart receiving data */
@@ -223,30 +229,30 @@ void board_update(void) {
 	}
 
 	/* State to peripheral */
-	encoder_set_pulse_per_rev(ENCODER1, state[MOTOR1].motor_encoder_resolution);
-	encoder_set_pulse_per_rev(ENCODER2, state[MOTOR2].motor_encoder_resolution);
-	pwm_set_supply_voltage(PWM1, state[MOTOR1].motor_supply_voltage);
-	pwm_set_supply_voltage(PWM2, state[MOTOR2].motor_supply_voltage);
+	encoder_set_pulse_per_rev(ENCODER1, motor[MOTOR1].state.motor_encoder_resolution);
+	encoder_set_pulse_per_rev(ENCODER2, motor[MOTOR2].state.motor_encoder_resolution);
+	pwm_set_supply_voltage(PWM1, motor[MOTOR1].state.motor_supply_voltage);
+	pwm_set_supply_voltage(PWM2, motor[MOTOR2].state.motor_supply_voltage);
 
 	/* State to controller */
-	fbparam[MOTOR1].Ts = 100e-6F;
-	fbparam[MOTOR1].Kp = state[MOTOR1].current_fbparam_Kp;
-	if (util_isnonzero(state[MOTOR1].current_fbparam_Ti)) {
-		fbparam[MOTOR1].Ki = state[MOTOR1].current_fbparam_Kp / state[MOTOR1].current_fbparam_Ti;
+	motor[MOTOR1].fbparam_current.Ts = 100e-6F;
+	motor[MOTOR1].fbparam_current.Kp = motor[MOTOR1].state.current_fbparam_Kp;
+	if (util_isnonzero(motor[MOTOR1].state.current_fbparam_Ti)) {
+		motor[MOTOR1].fbparam_current.Ki = motor[MOTOR1].state.current_fbparam_Kp / motor[MOTOR1].state.current_fbparam_Ti;
 	}
 }
 
 void board_current_feedback(const MOTOR_CHANNEL channel) {
 	float r, y, u;
 
-	switch (state[channel].control_mode) {
+	switch (motor[channel].state.control_mode) {
 	case FBCONTROL_MODE_CURRENT:
 	case FBCONTROL_MODE_SPEED:
 	case FBCONTROL_MODE_POSITION:
 		r = 0.0F;
-		y = csa_get_current(state[channel].csa);
-		u = fbcontrol_pi(r, y, &fbparam[channel]);
-		pwm_set_voltage(state[channel].pwm, u);
+		y = csa_get_current(motor[channel].csa);
+		u = fbcontrol_pi(r, y, &motor[channel].fbparam_current);
+		pwm_set_voltage(motor[channel].pwm, u);
 		break;
 
 	default:
@@ -256,9 +262,9 @@ void board_current_feedback(const MOTOR_CHANNEL channel) {
 
 void board_encoder_overflow_handler(const MOTOR_CHANNEL channel, const BOOL isdown) {
 	if (isdown) {
-		encoder_count_overflow(state[channel].encoder, -1);
+		encoder_count_overflow(motor[channel].encoder, -1);
 	} else {
-		encoder_count_overflow(state[channel].encoder, 1);
+		encoder_count_overflow(motor[channel].encoder, 1);
 	}
 }
 
