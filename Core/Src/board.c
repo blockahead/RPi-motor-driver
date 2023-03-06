@@ -39,6 +39,7 @@ typedef struct {
 	FBCONTROL_PARAM fbparam[NUM_OF_CONTROL_TYPES];
 	SPI_ADDR transmit_data_address;
 	BOARD_PERIPHERAL_CHANNEL periph;
+	float target_current;
 } BOARD_STATE;
 
 static BOARD_STATE state[NUM_OF_MOTORS];
@@ -197,7 +198,7 @@ void board_start(void) {
 	spi_start();
 }
 
-void board_update(void) {
+static void board_update_spi(void) {
 	/* Peripheral to state */
 	for (uint8_t i = 0; i < NUM_OF_MOTORS; i++) {
 		state[i].motor_current = csa_get_current(state[i].periph.csa);
@@ -238,6 +239,41 @@ void board_update(void) {
 	}
 }
 
+static void board_update_feedback() {
+	float tmp;
+
+	for (uint8_t i = 0; i < NUM_OF_MOTORS; i++) {
+		switch (state[i].control_mode) {
+		case BOARD_CONTROL_MODE_VOLTAGE:
+			state[i].target_current = 0.0F;
+			pwm_set_voltage(state[i].periph.pwm, state[i].control_target);
+			break;
+
+		case BOARD_CONTROL_MODE_CURRENT:
+			state[i].target_current = state[i].control_target;
+			break;
+
+		case BOARD_CONTROL_MODE_SPEED:
+			state[i].target_current = fbcontrol_pi(state[i].control_target, state[i].motor_speed, &state[i].fbparam[SPEED]);
+			break;
+
+		case BOARD_CONTROL_MODE_POSITION:
+			tmp = fbcontrol_pid(state[i].control_target, state[i].motor_position, &state[i].fbparam[POSITION]);
+			state[i].target_current = fbcontrol_pi(tmp, state[i].motor_speed, &state[i].fbparam[SPEED]);
+			break;
+
+		default:
+			state[i].target_current = 0.0F;
+			break;
+		}
+	}
+}
+
+void board_update(void) {
+	board_update_spi();
+	board_update_feedback();
+}
+
 void board_current_feedback(const MOTOR_CHANNEL channel) {
 	float r, y, u;
 
@@ -245,7 +281,7 @@ void board_current_feedback(const MOTOR_CHANNEL channel) {
 	case BOARD_CONTROL_MODE_CURRENT:
 	case BOARD_CONTROL_MODE_SPEED:
 	case BOARD_CONTROL_MODE_POSITION:
-		r = 0.0F;
+		r = state[channel].target_current;
 		y = csa_get_current(state[channel].periph.csa);
 		u = fbcontrol_pi(r, y, &state[channel].fbparam[CURRENT]);
 		pwm_set_voltage(state[channel].periph.pwm, u);
