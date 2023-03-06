@@ -21,6 +21,6 @@ float saturation(const float value, const float min, const float max) {
 	}
 }
 
-BOOL isnonzero(const float value) {
+BOOL util_isnonzero(const float value) {
 	return (EPS < fabsf(value)) ? (TRUE) : (FALSE);
 }

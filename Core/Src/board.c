@@ -231,7 +231,7 @@ void board_update(void) {
 	/* State to controller */
 	fbparam[MOTOR1].Ts = 100e-6F;
 	fbparam[MOTOR1].Kp = state[MOTOR1].current_fbparam_Kp;
-	if (isnonzero(state[MOTOR1].current_fbparam_Ti)) {
+	if (util_isnonzero(state[MOTOR1].current_fbparam_Ti)) {
 		fbparam[MOTOR1].Ki = state[MOTOR1].current_fbparam_Kp / state[MOTOR1].current_fbparam_Ti;
 	}
 }
