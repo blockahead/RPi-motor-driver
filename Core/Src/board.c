@@ -219,20 +219,22 @@ void board_update(void) {
 		}
 
 		/* Set current state into transmit buffer */
+		/* These function calls must placed after the data is received to send   */
+		/* the latest data corresponding received address if address has changed */
 		board_convert_state2spi(&data1, &state[MOTOR1]);
 		board_convert_state2spi(&data2, &state[MOTOR2]);
 		spi_set_DR((uint16_t) 0, data1, data2);
 
 		/* Restart receiving data */
 		spi_start();
+
+		/* State to peripheral */
+		for (uint8_t i = 0; i < NUM_OF_MOTORS; i++) {
+			encoder_set_pulse_per_rev(state[i].periph.encoder, state[i].motor_encoder_resolution);
+			pwm_set_supply_voltage(state[i].periph.pwm, state[i].motor_supply_voltage);
+		}
 	} else {
 		/* Do nothing */
-	}
-
-	/* State to peripheral */
-	for (uint8_t i = 0; i < NUM_OF_MOTORS; i++) {
-		encoder_set_pulse_per_rev(state[i].periph.encoder, state[i].motor_encoder_resolution);
-		pwm_set_supply_voltage(state[i].periph.pwm, state[i].motor_supply_voltage);
 	}
 }
 
