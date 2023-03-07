@@ -29,6 +29,9 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim) {
 		} else if (htim->Instance == TIM3) {
 			/* Motor2 encoder overflow */
 			board_encoder_overflow_handler(MOTOR2, __HAL_TIM_IS_TIM_COUNTING_DOWN(htim));
+		} else if (htim->Instance == TIM6) {
+			/* 1ms timer interruption */
+			board_cputimer_inc();
 		}
 	}
 }

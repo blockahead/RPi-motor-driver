@@ -23,3 +23,8 @@ float fbcontrol_pid(const float r, const float y, FBCONTROL_PARAM *param) {
 
 	return param->fbgain.Kp * e + param->fbgain.Ki * param->fbstate.ei + param->fbgain.Kd * dydt;
 }
+
+void fbcontrol_state_clear(FBCONTROL_STATE *state) {
+	state->ei = 0.0F;
+	state->y_pre = 0.0F;
+}

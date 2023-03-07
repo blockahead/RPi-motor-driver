@@ -7,8 +7,10 @@
 
 #include "timer.h"
 
+extern TIM_HandleTypeDef htim6;
 extern TIM_HandleTypeDef htim17;
 
 void timer_start(void) {
+	HAL_TIM_Base_Start_IT(&htim6);
 	HAL_TIM_Base_Start_IT(&htim17);
 }

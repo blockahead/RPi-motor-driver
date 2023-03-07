@@ -42,24 +42,29 @@ typedef struct {
 	float target_current;
 } BOARD_STATE;
 
+static uint32_t cputime_ms;
 static BOARD_STATE state[NUM_OF_MOTORS];
+static BOOL isrequest_execute_control;
 
 static void board_state_init(void) {
-	state[MOTOR1].motor_supply_voltage = 0.0F;
-	state[MOTOR1].fbparam[CURRENT].fbgain.Kp = 0.0F;
-	state[MOTOR1].fbparam[CURRENT].fbgain.Ki = 0.0F;
+	cputime_ms = 0U;
+	isrequest_execute_control = FALSE;
+
+	/* motor1 constants */
 	state[MOTOR1].periph.pwm = PWM1;
 	state[MOTOR1].periph.csa = CSA1;
 	state[MOTOR1].periph.encoder = ENCODER1;
 	state[MOTOR1].fbparam[CURRENT].fbstate.Ts = 100.0e-6F;
+	state[MOTOR1].fbparam[SPEED].fbstate.Ts = 10.0e-3F;
+	state[MOTOR1].fbparam[POSITION].fbstate.Ts = 10.0e-3F;
 
-	state[MOTOR2].motor_supply_voltage = 0.0F;
-	state[MOTOR2].fbparam[CURRENT].fbgain.Kp = 0.0F;
-	state[MOTOR2].fbparam[CURRENT].fbgain.Ki = 0.0F;
+	/* motor2 constants */
 	state[MOTOR2].periph.pwm = PWM2;
 	state[MOTOR2].periph.csa = CSA2;
 	state[MOTOR2].periph.encoder = ENCODER2;
 	state[MOTOR2].fbparam[CURRENT].fbstate.Ts = 100.0e-6F;
+	state[MOTOR2].fbparam[SPEED].fbstate.Ts = 10.0e-3F;
+	state[MOTOR2].fbparam[POSITION].fbstate.Ts = 10.0e-3F;
 }
 
 static void board_convert_spi2state(BOARD_STATE *s, const SPI_ADDR addr, const SPI_DATA data) {
@@ -203,6 +208,7 @@ static void board_update_spi(void) {
 	for (uint8_t i = 0; i < NUM_OF_MOTORS; i++) {
 		state[i].motor_current = csa_get_current(state[i].periph.csa);
 		state[i].motor_position = encoder_get_angle_rad(state[i].periph.encoder);
+		/* TODO: motor_speed */
 	}
 
 	/* Analyze and send SPI packet */
@@ -224,7 +230,7 @@ static void board_update_spi(void) {
 		/* the latest data corresponding received address if address has changed */
 		board_convert_state2spi(&data1, &state[MOTOR1]);
 		board_convert_state2spi(&data2, &state[MOTOR2]);
-		spi_set_DR((uint16_t) 0, data1, data2);
+		spi_set_DR(cputime_ms, data1, data2);
 
 		/* Restart receiving data */
 		spi_start();
@@ -242,30 +248,37 @@ static void board_update_spi(void) {
 static void board_update_feedback() {
 	float tmp;
 
-	for (uint8_t i = 0; i < NUM_OF_MOTORS; i++) {
-		switch (state[i].control_mode) {
-		case BOARD_CONTROL_MODE_VOLTAGE:
-			state[i].target_current = 0.0F;
-			pwm_set_voltage(state[i].periph.pwm, state[i].control_target);
-			break;
+	if (isrequest_execute_control) {
+		for (uint8_t i = 0; i < NUM_OF_MOTORS; i++) {
+			switch (state[i].control_mode) {
+			case BOARD_CONTROL_MODE_VOLTAGE:
+				state[i].target_current = 0.0F;
+				pwm_set_voltage(state[i].periph.pwm, state[i].control_target);
+				break;
 
-		case BOARD_CONTROL_MODE_CURRENT:
-			state[i].target_current = state[i].control_target;
-			break;
+			case BOARD_CONTROL_MODE_CURRENT:
+				state[i].target_current = state[i].control_target;
+				break;
 
-		case BOARD_CONTROL_MODE_SPEED:
-			state[i].target_current = fbcontrol_pi(state[i].control_target, state[i].motor_speed, &state[i].fbparam[SPEED]);
-			break;
+			case BOARD_CONTROL_MODE_SPEED:
+				state[i].target_current = fbcontrol_pi(state[i].control_target, state[i].motor_speed, &state[i].fbparam[SPEED]);
+				break;
 
-		case BOARD_CONTROL_MODE_POSITION:
-			tmp = fbcontrol_pid(state[i].control_target, state[i].motor_position, &state[i].fbparam[POSITION]);
-			state[i].target_current = fbcontrol_pi(tmp, state[i].motor_speed, &state[i].fbparam[SPEED]);
-			break;
+			case BOARD_CONTROL_MODE_POSITION:
+				tmp = fbcontrol_pid(state[i].control_target, state[i].motor_position, &state[i].fbparam[POSITION]);
+				state[i].target_current = fbcontrol_pi(tmp, state[i].motor_speed, &state[i].fbparam[SPEED]);
+				break;
 
-		default:
-			state[i].target_current = 0.0F;
-			break;
+			default:
+				state[i].target_current = 0.0F;
+				break;
+			}
+
 		}
+
+		isrequest_execute_control = FALSE;
+	} else {
+		/* Do nothing */
 	}
 }
 
@@ -297,6 +310,14 @@ void board_encoder_overflow_handler(const MOTOR_CHANNEL channel, const BOOL isdo
 		encoder_count_overflow(state[channel].periph.encoder, -1);
 	} else {
 		encoder_count_overflow(state[channel].periph.encoder, 1);
+	}
+}
+
+void board_cputimer_inc(void) {
+	cputime_ms++;
+
+	if (cputime_ms % 10 == 0) {
+		isrequest_execute_control = TRUE;
 	}
 }
 
