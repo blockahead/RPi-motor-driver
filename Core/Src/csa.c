@@ -8,7 +8,10 @@
 #include "csa.h"
 
 #define REG_MAX (0xFFF)
-#define REFERENCE_VOLTAGE (3.3F)
+#define ADC_VREF (3.3F)
+#define CSA_VREF (1.5F)
+/* GAIN = 1 / (50x * 10mOhm) */
+#define CSA_GAIN (2.0F)
 
 extern ADC_HandleTypeDef hadc1;
 
@@ -18,7 +21,7 @@ static float csa_get_voltage(const CSA_CHANNEL channel) {
 	switch (channel) {
 	case CSA1:
 	case CSA2:
-		return REFERENCE_VOLTAGE * ((float) reg[channel] / (float) REG_MAX);
+		return ADC_VREF * ((float) reg[channel] / (float) REG_MAX);
 
 	default:
 		return 0.0F;
@@ -29,7 +32,7 @@ float csa_get_current(const CSA_CHANNEL channel) {
 	switch (channel) {
 	case CSA1:
 	case CSA2:
-		return csa_get_voltage(channel);
+		return (csa_get_voltage(channel) - CSA_VREF) * CSA_GAIN;
 
 	default:
 		return 0.0F;

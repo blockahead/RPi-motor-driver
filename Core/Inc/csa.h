@@ -11,7 +11,7 @@
 #include "stm32f3xx_hal.h"
 
 typedef enum {
-	CSA1,
+	CSA1 = 0U,
 	CSA2,
 	NUM_OF_CSAS
 } CSA_CHANNEL;

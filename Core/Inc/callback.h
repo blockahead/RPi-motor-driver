@@ -18,7 +18,8 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim) {
 			HAL_GPIO_WritePin(PERIOD_CURRENT_FB_GPIO_Port, PERIOD_CURRENT_FB_Pin, GPIO_PIN_SET);
 
 			/* 100us timer interruption */
-			board_current_feedback();
+			board_current_feedback(MOTOR1);
+			board_current_feedback(MOTOR2);
 
 			/* Check current feedback execution period END */
 			HAL_GPIO_WritePin(PERIOD_CURRENT_FB_GPIO_Port, PERIOD_CURRENT_FB_Pin, GPIO_PIN_RESET);
