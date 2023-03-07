@@ -248,43 +248,42 @@ static void board_update_spi(void) {
 static void board_update_feedback() {
 	float tmp;
 
-	if (isrequest_execute_control) {
-		for (uint8_t i = 0; i < NUM_OF_MOTORS; i++) {
-			switch (state[i].control_mode) {
-			case BOARD_CONTROL_MODE_VOLTAGE:
-				state[i].target_current = 0.0F;
-				pwm_set_voltage(state[i].periph.pwm, state[i].control_target);
-				break;
+	for (uint8_t i = 0; i < NUM_OF_MOTORS; i++) {
+		switch (state[i].control_mode) {
+		case BOARD_CONTROL_MODE_VOLTAGE:
+			state[i].target_current = 0.0F;
+			pwm_set_voltage(state[i].periph.pwm, state[i].control_target);
+			break;
 
-			case BOARD_CONTROL_MODE_CURRENT:
-				state[i].target_current = state[i].control_target;
-				break;
+		case BOARD_CONTROL_MODE_CURRENT:
+			state[i].target_current = state[i].control_target;
+			break;
 
-			case BOARD_CONTROL_MODE_SPEED:
-				state[i].target_current = fbcontrol_pi(state[i].control_target, state[i].motor_speed, &state[i].fbparam[SPEED]);
-				break;
+		case BOARD_CONTROL_MODE_SPEED:
+			state[i].target_current = fbcontrol_pi(state[i].control_target, state[i].motor_speed, &state[i].fbparam[SPEED]);
+			break;
 
-			case BOARD_CONTROL_MODE_POSITION:
-				tmp = fbcontrol_pid(state[i].control_target, state[i].motor_position, &state[i].fbparam[POSITION]);
-				state[i].target_current = fbcontrol_pi(tmp, state[i].motor_speed, &state[i].fbparam[SPEED]);
-				break;
+		case BOARD_CONTROL_MODE_POSITION:
+			tmp = fbcontrol_pid(state[i].control_target, state[i].motor_position, &state[i].fbparam[POSITION]);
+			state[i].target_current = fbcontrol_pi(tmp, state[i].motor_speed, &state[i].fbparam[SPEED]);
+			break;
 
-			default:
-				state[i].target_current = 0.0F;
-				break;
-			}
-
+		default:
+			state[i].target_current = 0.0F;
+			break;
 		}
-
-		isrequest_execute_control = FALSE;
-	} else {
-		/* Do nothing */
 	}
 }
 
 void board_update(void) {
 	board_update_spi();
-	board_update_feedback();
+
+	if (isrequest_execute_control) {
+		board_update_feedback();
+		isrequest_execute_control = FALSE;
+	} else {
+		/* Do nothing */
+	}
 }
 
 void board_current_feedback(const MOTOR_CHANNEL channel) {
