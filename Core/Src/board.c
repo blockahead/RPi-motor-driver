@@ -222,7 +222,7 @@ static void board_update_spi(void) {
 			board_convert_spi2state(&state[MOTOR1], addr1, data1);
 			board_convert_spi2state(&state[MOTOR2], addr2, data2);
 		} else {
-			/* Do nothing */
+			spi_abort();
 		}
 
 		/* Set current state into transmit buffer */
@@ -324,6 +324,7 @@ void board_spi_receive_handler(const BOOL issuccess) {
 	if (issuccess) {
 		spi_receive();
 	} else {
-		spi_error();
+		spi_abort();
+		spi_start();
 	}
 }

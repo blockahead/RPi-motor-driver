@@ -42,7 +42,7 @@ typedef union {
 #pragma pack() /* pack(1) */
 
 void spi_receive(void);
-void spi_error(void);
+void spi_abort(void);
 BOOL spi_packet_hasreceived(void);
 BOOL spi_packet_isvalid(void);
 void spi_get_DW(SPI_ADDR *addr1, SPI_ADDR *addr2, SPI_DATA *wdata1, SPI_DATA *wdata2);

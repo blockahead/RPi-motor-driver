@@ -45,9 +45,8 @@ void spi_receive(void) {
 	hasreceived = TRUE;
 }
 
-void spi_error(void) {
+void spi_abort(void) {
 	HAL_SPI_Abort(&hspi1);
-	spi_start();
 }
 
 BOOL spi_packet_hasreceived(void) {
